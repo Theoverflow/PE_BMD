@@ -1,0 +1,3 @@
+[submodule "eda-explorer"]
+	path = eda-explorer
+	url = https://github.com/MITMediaLabAffectiveComputing/eda-explorer.git
