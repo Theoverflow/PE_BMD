@@ -47,7 +47,7 @@ h1 = {"00:07:80:0F:80:1A": {"position": 0, "device": "biosignalsplux", "device n
 
 #Deux fonctions permettants d'afficher la structures des données. Elles sont similaires mais comme on ne peut pas distinguer un Groupe HDF d'un Dataset, on doit adapter les scripts.
 
-def afficheLabels():
+def afficheLabels(dset1):
     for key in dset1.keys():
         print(key)
         print(f'{list(dset1[key].keys())}')
@@ -55,7 +55,7 @@ def afficheLabels():
             print(f'{dset1[key][subkey]} \n')
 #afficheLabels()
 
-def afficheLabelsSupport():
+def afficheLabelsSupport(dset1):
     l = 'support'
     for key in dset1['support'].keys():
         print(key)
@@ -337,6 +337,57 @@ def smooth(x,window_len=11,window='hanning'):
     y=np.convolve(w/w.sum(),s,mode='valid')
     return y
 
+#%%
+#Fonction pour extraire les paramètres de l'EDA :
+"""
+Parameter                               Formal Definition                   Notes
+Latency to stimulus onset	            EDRlat=tresponse−tstimulus 	        tstimulus  is the time instant when the stimulus was applied (for example contact of the skin with a hot surface) and  tresponse  is the time instant at which the EDA signal starts to change (go out the basal level)
+EDR amplitude	                        EDRamp=EDAmax−EDAbasal 	            EDAmax  is the maximum sample value of the EDA signal and  EDAbasal  is the sample value relative to the time instant where the response start ( tresponse )
+EDR rising time (Rise Time)	            EDArist=tmax−tresponse 	            tmax  is the time instant of  EDRmax  and  tresponse  is the time instant where the response start
+EDR response peak (Peak Time)	        tmax 	                            tmax  is the time instant of  EDRmax 
+Recovery time to 50% amplitude	        RT50%=t50%−tmax 	                RT50%  is the time interval that EDA signal takes to decrease 50% of  EDRamp ,  tmax  is the time instant of  EDRamp  and  t50%  is the first time instant, after  EDAmax  where signal amplitude is  EDR50%=EDAmax−0.50∗EDRamp 
+Recovery time to 63% amplitude	        RT63%=t63%−tmax 	                RT63%  is the time interval that EDA signal takes to decrease 63% of  EDRamp ,  tmax  is the time instant of  EDRamp  and  t63%  is the first time instant, after  EDAmax  where signal amplitude is  EDR63%=EDAmax−0.63∗EDRamp
+"""
+#Avant de l'exécuter, il faut déterminer les fenêtres dans lesquelles on trouve les pics d'EDA
+def extractEDAParameters(signal_int, sr):
+    param_dict = {}
+
+    #[Latency to stimulus onset]
+    signal_2nd_der = np.diff(np.diff(signal_int)) # Generation of 2nd derivative function.
+    der_thr = max(signal_2nd_der) # Identification of our major concavity point (start of response time)
+    response_sample = np.argmax(signal_2nd_der)
+    response_time = response_sample / sr
+    param_dict["Latency to stimulus onset"] = response_time - 0
+
+    #[EDR amplitude]
+    eda_max = max(signal_int)
+    eda_basal = signal_int[response_sample]
+    param_dict["EDR amplitude"] = eda_max - eda_basal
+
+    #[EDR rising time (Rise Time)]
+    eda_max_sample = np.argmax(signal_int)
+    eda_max_time = eda_max_sample / sr
+    param_dict["EDR rising time (Rise Time)"] = eda_max_time - response_time
+
+    #[EDR response peak (Peak Time)]
+    param_dict["EDR response peak (Peak Time)"] = eda_max_time
+
+    #[Recovery time to 50% amplitude]
+    time_50 = None
+    for i in range(eda_max_sample, len(signal_int)):
+        if signal_int[i] <= eda_max - 0.50 * param_dict["EDR amplitude"]:
+            time_50 = i / sr
+            break
+    param_dict["Recovery time to 50% amplitude"] = time_50 - eda_max_time
+
+    #[Recovery time to 63% amplitude]
+    time_63 = None
+    for i in range(eda_max_sample, len(signal_int)):
+        if signal_int[i] <= eda_max - 0.63 * param_dict["EDR amplitude"]:
+            time_63 = i / sr
+            break
+    param_dict["Recovery time to 63% amplitude"] = time_63 - eda_max_time
+
 
 # In[ ]:
 
@@ -421,6 +472,7 @@ def processEDA():
         plt.ylabel(f'Normalized processed EDA (uS)')
         plt.legend()
         processedEDA.append(signal_int)
+        fig.tight_layout()
     plt.show()
     fig.savefig(f'../Plot/Signals/EDA/processedEDAcleanorder235Hz.png', facecolor="white")
     return processedEDA
@@ -590,7 +642,7 @@ plotCVxEDA()
 # In[ ]:
 
 
-import heartpy
+""" import heartpy
 def plotECG(start=None, stop=None):
     Fs = 1000.0
     fig = plt.figure(figsize=(60,20), facecolor="white")
@@ -607,12 +659,12 @@ def plotECG(start=None, stop=None):
         else: 
             tm2 = np.linspace(0, len(ecg2)//1000, len(ecg2))
         plt.subplot(4, 2, i+1)
-        """ plt.plot(tm, ecg)
+        plt.plot(tm, ecg)
         plt.title(f'ecg Acquisition')
         plt.xlabel('Acquistition')
         plt.ylabel(f'ecg Value')
         plt.legend()
-        plt.subplot(2, 1, 2) """
+        plt.subplot(2, 1, 2)
         plt.plot(tm2, ecg2)
         plt.title(f'ecg2 Acquisition {i+1}')
         plt.xlabel('Acquistition')
@@ -621,5 +673,4 @@ def plotECG(start=None, stop=None):
     plt.show()
     fig.savefig(f"data{start}_{stop}.png")
 plotECG()
-plotECG(30000,40000)
-
+plotECG(30000,40000) """
