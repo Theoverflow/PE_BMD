@@ -387,6 +387,7 @@ def extractEDAParameters(signal_int, sr):
             time_63 = i / sr
             break
     param_dict["Recovery time to 63% amplitude"] = time_63 - eda_max_time
+    return param_dict
 
 
 # In[ ]:
@@ -462,6 +463,7 @@ def processEDA():
         swt_coeffs = [(np.array(scaling_coeffs), np.array(filt_detail_coeffs))]
         rec_signal = iswt(swt_coeffs, "haar")
         signal_int = smooth(rec_signal, sr * 3)
+        signal_int = signal_int/max(signal_int)
         signal_int = signal_int * (max(signal_us_low_pass) / max(signal_int))
         plt.subplot(9, 1, ligne)
         ligne += 1
@@ -474,7 +476,7 @@ def processEDA():
         processedEDA.append(signal_int)
         fig.tight_layout()
     plt.show()
-    fig.savefig(f'../Plot/Signals/EDA/processedEDAcleanorder235Hz.png', facecolor="white")
+    fig.savefig(f'../Plot/Signals/EDA/processedEDAnormalizedorder235Hz.png', facecolor="white")
     return processedEDA
 
 processEDA()
@@ -599,18 +601,21 @@ def plotCVxEDA():
         plt.xlabel('Time')
         plt.ylabel('Normalized Smoothed EDA value')
         plt.legend()
+        
         plt.subplot(4, 1, 2)
         plt.plot(tm, r)
         plt.title('Phasic component')
         plt.xlabel('Time')
         plt.ylabel('Phasic component value')
         plt.legend()
+        
         plt.subplot(4, 1, 3)
         plt.plot(tm, p)
         plt.title('Sparse SMNA driver of phasic component')
         plt.xlabel('Time')
         plt.ylabel('Sparse SMNA value')
         plt.legend()
+        
         plt.subplot(4, 1, 4)
         plt.plot(tm, t)
         plt.title('Tonic component')
