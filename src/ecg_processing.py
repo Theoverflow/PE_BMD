@@ -266,4 +266,4 @@ def filtECG(N_order = 2):
 
 
 for j in range(1, 5):
-    FiltECG(j)
+    filtECG(j)

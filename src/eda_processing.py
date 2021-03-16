@@ -8,11 +8,14 @@
 
 #Importation des librairies utiles pour les étapes de traitement
 
+from inspect import FullArgSpec
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 import cvxopt as cv
 import cvxopt.solvers
+import scipy
+from scipy.signal.windows.windows import kaiser
 import scipy.stats as stats
 from scipy.stats import norm
 from scipy import signal
@@ -125,27 +128,59 @@ def collectData(i):
     return [data_ecg, data_eda, data_rr, data_acc]
 
 dataplot = collectData(-1)
+protocolLabel = [[50.5,111.3,121.9,153.4,161.6,197.1,211.6,397.7],\
+[3.9,64.8,76.5,107.9,115.0,146.2,167.6,221.5],\
+[3.9,64.8,76.5,107.9,115.0,146.2,167.6,221.5],\
+[60.1,80.7,115.6,121.3,159.7,183.7,220.9],\
+[29,90,99,130,139,180,220,255],\
+[17,78,95,128,135,171,219,230],\
+[9.1,71.2,92.4,125.5,131.7,164.9,179,205,254,345,388]]
+#%%
 
+def transformDataplot(datatoresize,timeframedata):
+    for j in range(7):
+        taille = int(1000*timeframedata[j][-1])
+        for i in range(len(datatoresize)):
+            datatoresize[i][j] = datatoresize[i][j][:taille]
+    return datatoresize
+
+dataplot = transformDataplot(dataplot,protocolLabel)
+#%%
+plt.rcParams['font.size'] = 18
 #Fonction pour ploter les données, on sauvegarde 7 images rawdatasX.png comprenant 4 graphiques différents
 def plotDatas():
     for j in range(len(Datasets)):
         i = 1
         label = ['ECG', 'EDA', 'RR', 'ACC']
-        fig = plt.figure(figsize=(60,20))
+        fig = plt.figure(figsize=(60,40), facecolor="white")
         for el in dataplot:
             tm = np.linspace(0, len(el[j])//1000, len(el[j]))
-            el[j] = el[j]/max(el[j])
             plt.subplot(4,1,i)
-            plt.plot(tm, el[j], label=label[i-1])
+            plt.plot(tm,el[j], label=label[i-1])
             plt.title(f'Raw {label[i-1]} Acquisition')
             plt.xlabel('Acquistition')
             plt.ylabel(f'{label[i-1]} Value')
+            plt.tick_params(axis='both', which='major')
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+            plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+            plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="description")
+            if j != 3:
+                plt.axvline(x=protocolLabel[j][7], color="black", linestyle="--", label="relax")
+                if j == 6 : 
+                    plt.axvline(x=protocolLabel[j][8], color="yellow", linestyle="--", label="questionnary")
+                    plt.axvline(x=protocolLabel[j][9], color="purple", linestyle="--", label="video")
+                    plt.axvline(x=protocolLabel[j][10], color="brown", linestyle="--", label="video")
             plt.legend()
             i += 1
         plt.show()
-        fig.savefig(f'../Plot/rawdatas{j+1}.png')
+        fig.savefig(f'../Plot/rawdataslabeled{j+1}.png',facecolor="white")
+plotDatas()
 
-fig = plt.figure(figsize=(60,20), facecolor="white")
+fig = plt.figure(figsize=(60,40), facecolor="white")
 nbi = 1
 for el in dataplot[1]:
     signal_mv = signal_us = ((el / 2**16) * 3) / 0.12
@@ -174,14 +209,14 @@ def FiltEDA(N_order = 2):
     res = 16                    #Résolution de l'ADC
     vcc=3                       #Alimentation 
     fpLP = [0.35, 0.5, 5, 35]             #Fréquences de coupure
-    fpBP = [[0.016, 5],[0.05, 35],[0.045, 0.25],[0.0167, 0.25]]
+    fpBP = [[0.016, 5],[0.5, 35],[0.045, 0.25],[0.0167, 0.25]]
     nyquist_frequence = sample_frequence/2.
     
     
 
 
     for flp in fpLP:
-        fig = plt.figure(figsize=(60,40), facecolor="white")
+        fig = plt.figure(figsize=(90,60), facecolor="white")
         b, a = signal.butter(N_order, flp, 'low', fs = sample_frequence)
         w, h = signal.freqs(b, a)
         ifilt = 1
@@ -404,6 +439,7 @@ res = 16
 vcc = 3
 def processEDA():
     fig = plt.figure(figsize=(60,40), facecolor="white")
+    #b, a = signal.butter(2, [0.5,35], 'bandpass', fs = 1000.)
     b, a = signal.butter(2, 35, 'low', fs = 1000.)
     ligne = 1
     processedEDA = []
@@ -414,7 +450,6 @@ def processEDA():
 
         swtN = SWTLevel(N) #On détermine la taille maximale qu'on peut avoir pour qu'elle soit un multiple du carré du niveau par défaut (niveau 8 donc 64)
         lvl = swt_max_level(swtN) #Calcul du niveaux max qu'on peut obtenir avec la taille swtN
-        print(lvl)
         swt_orig_coeffs = swt(signal_us_low_pass[:swtN], "haar", level=lvl) #Application ondelette de Haar
         detail_coeffs = swt_orig_coeffs[0][1]
         scaling_coeffs = swt_orig_coeffs[0][0]
@@ -476,7 +511,7 @@ def processEDA():
         processedEDA.append(signal_int)
         fig.tight_layout()
     plt.show()
-    fig.savefig(f'../Plot/Signals/EDA/processedEDAnormalizedorder235Hz.png', facecolor="white")
+    #fig.savefig(f'../Plot/Signals/EDA/processedEDAnormalizedorder235Hz.png', facecolor="white")
     return processedEDA
 
 processEDA()
@@ -587,19 +622,35 @@ def cvxEDA(y, delta, tau0=2., tau1=0.7, delta_knot=10., alpha=8e-4, gamma=1e-2,
 #dataprocessed = processEDA()
 def plotCVxEDA():
     nbofpic = 1
-    for el in dataplot[1]:
+    dataa = processEDA()
+    for el in dataa:
         y = np.array(el)
         yn = stats.zscore(y)
         Fs = 1000
         [r, p, t, l, d, e, obj] = cvxEDA(yn, 1/Fs)
-        tm = np.linspace(0, len(y)//1000, len(y))
+        tm = np.linspace(0, len(y)//Fs, len(y))
 
-        fig = plt.figure(figsize=(60,20), facecolor="white")
+        fig = plt.figure(figsize=(60,40), facecolor="white")
+        y = y/max(y)
         plt.subplot(4, 1, 1)
         plt.plot(tm, y)
-        plt.title('Processed EDA signal')
+        plt.title('Raw Normalized EDA signal')
         plt.xlabel('Time')
-        plt.ylabel('Normalized Smoothed EDA value')
+        plt.ylabel('Normalized EDA value')
+        plt.tick_params(axis='both', which='major')
+        plt.axvline(x=protocolLabel[nbofpic-1][0], color="black", linestyle="--", label="start")
+        plt.axvline(x=protocolLabel[nbofpic-1][1], color="blue", linestyle="--", label="baseline")
+        plt.axvline(x=protocolLabel[nbofpic-1][2], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[nbofpic-1][3], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[nbofpic-1][4], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[nbofpic-1][5], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[nbofpic-1][6], color="green", linestyle="--", label="description")
+        if nbofpic != 4:
+            plt.axvline(x=protocolLabel[nbofpic-1][7], color="black", linestyle="--", label="relax")
+            if nbofpic == 7 : 
+                plt.axvline(x=protocolLabel[nbofpic-1][8], color="yellow", linestyle="--", label="questionnary")
+                plt.axvline(x=protocolLabel[nbofpic-1][9], color="purple", linestyle="--", label="video")
+                plt.axvline(x=protocolLabel[nbofpic-1][10], color="brown", linestyle="--", label="video")
         plt.legend()
         
         plt.subplot(4, 1, 2)
@@ -607,6 +658,19 @@ def plotCVxEDA():
         plt.title('Phasic component')
         plt.xlabel('Time')
         plt.ylabel('Phasic component value')
+        plt.axvline(x=protocolLabel[nbofpic-1][0], color="black", linestyle="--", label="start")
+        plt.axvline(x=protocolLabel[nbofpic-1][1], color="blue", linestyle="--", label="baseline")
+        plt.axvline(x=protocolLabel[nbofpic-1][2], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[nbofpic-1][3], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[nbofpic-1][4], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[nbofpic-1][5], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[nbofpic-1][6], color="green", linestyle="--", label="description")
+        if nbofpic != 4:
+            plt.axvline(x=protocolLabel[nbofpic-1][7], color="black", linestyle="--", label="relax")
+            if nbofpic == 7 : 
+                plt.axvline(x=protocolLabel[nbofpic-1][8], color="yellow", linestyle="--", label="questionnary")
+                plt.axvline(x=protocolLabel[nbofpic-1][9], color="purple", linestyle="--", label="video")
+                plt.axvline(x=protocolLabel[nbofpic-1][10], color="brown", linestyle="--", label="video")
         plt.legend()
         
         plt.subplot(4, 1, 3)
@@ -614,6 +678,19 @@ def plotCVxEDA():
         plt.title('Sparse SMNA driver of phasic component')
         plt.xlabel('Time')
         plt.ylabel('Sparse SMNA value')
+        plt.axvline(x=protocolLabel[nbofpic-1][0], color="black", linestyle="--", label="start")
+        plt.axvline(x=protocolLabel[nbofpic-1][1], color="blue", linestyle="--", label="baseline")
+        plt.axvline(x=protocolLabel[nbofpic-1][2], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[nbofpic-1][3], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[nbofpic-1][4], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[nbofpic-1][5], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[nbofpic-1][6], color="green", linestyle="--", label="description")
+        if nbofpic != 4:
+            plt.axvline(x=protocolLabel[nbofpic-1][7], color="black", linestyle="--", label="relax")
+            if nbofpic == 7: 
+                plt.axvline(x=protocolLabel[nbofpic-1][8], color="yellow", linestyle="--", label="questionnary")
+                plt.axvline(x=protocolLabel[nbofpic-1][9], color="purple", linestyle="--", label="video")
+                plt.axvline(x=protocolLabel[nbofpic-1][10], color="brown", linestyle="--", label="video")
         plt.legend()
         
         plt.subplot(4, 1, 4)
@@ -622,8 +699,21 @@ def plotCVxEDA():
         plt.xlabel('Time')
         plt.ylabel('Tonic component value')
         plt.legend()
+        plt.axvline(x=protocolLabel[nbofpic-1][0], color="black", linestyle="--", label="start")
+        plt.axvline(x=protocolLabel[nbofpic-1][1], color="blue", linestyle="--", label="baseline")
+        plt.axvline(x=protocolLabel[nbofpic-1][2], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[nbofpic-1][3], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[nbofpic-1][4], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[nbofpic-1][5], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[nbofpic-1][6], color="green", linestyle="--", label="description")
+        if nbofpic != 4:
+            plt.axvline(x=protocolLabel[nbofpic-1][7], color="black", linestyle="--", label="relax")
+            if nbofpic == 7: 
+                plt.axvline(x=protocolLabel[nbofpic-1][8], color="yellow", linestyle="--", label="questionnary")
+                plt.axvline(x=protocolLabel[nbofpic-1][9], color="purple", linestyle="--", label="video")
+                plt.axvline(x=protocolLabel[nbofpic-1][10], color="brown", linestyle="--", label="video")
         #plt.show()
-        fig.savefig(f'../Plot/Signals/EDA/CVxEDA{nbofpic}biss.png', facecolor="white")
+        fig.savefig(f'../Plot/Signals/EDA/CVxEDA{nbofpic}labeled.png', facecolor="white")
         nbofpic += 1
 
 plotCVxEDA()
@@ -679,3 +769,50 @@ def plotECG(start=None, stop=None):
     fig.savefig(f"data{start}_{stop}.png")
 plotECG()
 plotECG(30000,40000) """
+#%%
+import scipy
+fig = plt.figure()
+sig = dataplot[1][1]
+N = len(sig)
+k = np.arange(N)
+Fs = 1000
+T = N/Fs
+frq = k/T
+frq = frq[range(N//2)]
+T2 = 1/Fs
+timee = np.linspace(0, N//Fs, N)
+ffteda2 = scipy.fft.fft(sig)
+ffteda2 = ffteda2[range(N//2)]/max(ffteda2[range(N//2)])
+#freq = scipy.fft.fftfreq(N, d=1/1000.0)
+amp = 2.0/N * np.abs(ffteda2)
+plt.subplot(2,1,1)
+plt.plot(frq, np.abs(ffteda2),'k')
+plt.subplot(2,1,2)
+plt.plot(timee,sig)
+fig.tight_layout()
+plt.show()
+#%%
+Fs = 1000
+for el in dataplot[1]:
+    sig = el
+    N = len(sig)
+    timee = np.linspace(0, N//Fs, N)
+    fig, axes = plt.subplots(2,1)
+    axes[0].plot(timee, sig)
+    axes[0].set_xlim([timee[0], timee[-1]])
+
+    t = np.arange(len(sig)) / Fs
+    freq = np.linspace(0.1, 30, 100)
+    w = 10.
+    widths = w*Fs / (2*freq*np.pi)
+    cwtm = scipy.signal.cwt(np.ravel(sig), scipy.signal.morlet2, widths, w=w)
+    spectrogram = np.log(np.abs(cwtm)) # log scale
+
+    axes[1].imshow(spectrogram, cmap='viridis', origin='lower', aspect='auto', extent=[t[0], t[-1], freq[0], freq[-1]],
+            interpolation='bicubic')
+    axes[1].set_xlabel('Time (sec)')
+    axes[1].set_ylabel('Freq (Hz)')
+    plt.show
+
+
+# %%
