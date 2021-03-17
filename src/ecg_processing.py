@@ -32,10 +32,10 @@ h1 = {"00:07:80:0F:80:1A": {"position": 0, "device": "biosignalsplux", "device n
 #Fonction qui récupère les données ECG, EDA, RR et ACC de Dataset afin de les plots dans la deuxième fonction. Le paramètre nous sert à définir la taille des données que l'on veut
 
 def collectData(i):
-    data_ecg, data_eda, data_rr, data_acc = [], [],[],[]
+    data_ecg, data_ecg, data_rr, data_acc = [], [],[],[]
     for j in range(len(Datasets)):
         """ normalized_ecg = preprocessing.normalize(Datasets[j]['channel_1'][:i], norm="l2")
-        normalized_eda = preprocessing.normalize(Datasets[j]['channel_2'][:i], norm="l2")
+        normalized_ecg = preprocessing.normalize(Datasets[j]['channel_2'][:i], norm="l2")
         normalized_rr = preprocessing.normalize(Datasets[j]['channel_3'][:i], norm="l2")
         normalized_acc = preprocessing.normalize(Datasets[j]['channel_4'][:i], norm="l2") """
         ecg = Datasets[j]['channel_1'][:i]
@@ -271,15 +271,15 @@ def filtECG(N_order = 2):
             filteredel = signal.filtfilt(b, a, np.ravel(signal_us)) #Application du premier filtre sur le signal
             time = np.linspace(0, len(el)//1000, len(el))
             plt.subplot(8,1,ifilt)
-            plt.plot(time, signal_us, label='Raw EDA')
-            plt.plot(time, filteredel, 'r-', label=f'Low-pass filtered EDA at {flp} Hz')
-            plt.title(f'Filtered EDA {ifilt-1}')
+            plt.plot(time, signal_us, label='Raw ECG')
+            plt.plot(time, filteredel, 'r-', label=f'Low-pass filtered ECG at {flp} Hz')
+            plt.title(f'Filtered ECG {ifilt-1}')
             plt.xlabel('Time (s)')
-            plt.ylabel(f'EDA {ifilt} (uS)')
+            plt.ylabel(f'ECG {ifilt} (uS)')
             plt.legend()
             ifilt += 1
     #plt.show()
-        fig.savefig(f'../Plot/Signals/EDA/filterededaLP_{N_order}_{flp}.png', facecolor="white")
+        fig.savefig(f'../filteredECGLP_{N_order}_{flp}.png', facecolor="white")
         plt.close(fig)
     
     for fbp in fpBP:
@@ -300,16 +300,16 @@ def filtECG(N_order = 2):
             filteredel = signal.filtfilt(b, a, np.ravel(signal_us)) #Application du premier filtre sur le signal
             time = np.linspace(0, len(el)//1000, len(el))
             plt.subplot(8,1,ifilt)
-            plt.plot(time, signal_us, label='Raw EDA')
-            plt.plot(time, filteredel, 'r-', label=f'Band-pass filtered EDA at [{fbp[0]}-{fbp[1]}] Hz')
-            plt.title(f'Filtered EDA {ifilt-1}')
+            plt.plot(time, signal_us, label='Raw ECG')
+            plt.plot(time, filteredel, 'r-', label=f'Band-pass filtered ECG at [{fbp[0]}-{fbp[1]}] Hz')
+            plt.title(f'Filtered ECG {ifilt-1}')
             plt.xlabel('Time (s)')
-            plt.ylabel(f'EDA {ifilt} (uS)')
+            plt.ylabel(f'ECG {ifilt} (uS)')
             plt.legend()
             ifilt += 1
-    #plt.show()
+        plt.show()
         ifilt = 1 
-        fig.savefig(f'../Plot/Signals/EDA/filterededaBP_{N_order}_{fbp}.png', facecolor="white") 
+        fig.savefig(f'../filteredecgBP_{N_order}_{fbp}.png', facecolor="white") 
         plt.close(fig)
 
     
@@ -332,16 +332,16 @@ def filtECG(N_order = 2):
             filteredel = signal.filtfilt(b, a, np.ravel(signal_us)) #Application du premier filtre sur le signal
             time = np.linspace(0, len(el)//1000, len(el))
             plt.subplot(8,1,ifilt)
-            plt.plot(time, signal_us, label='Raw EDA')
-            plt.plot(time, filteredel, 'r-', label=f'Band-pass filtered EDA at {fn} Hz')
-            plt.title(f'Filtered EDA {ifilt-1}')
+            plt.plot(time, signal_us, label='Raw ECG')
+            plt.plot(time, filteredel, 'r-', label=f'Band-pass filtered ECG at {fn} Hz')
+            plt.title(f'Filtered ECG {ifilt-1}')
             plt.xlabel('Time (s)')
-            plt.ylabel(f'EDA {ifilt} (uS)')
+            plt.ylabel(f'ECG {ifilt} (uS)')
             plt.legend()
             ifilt += 1
     #plt.show()
         ifilt = 1 
-        fig.savefig(f'../Plot/Signals/EDA/filterededaNOTCH_{N_order}_{fn}.png', facecolor="white") 
+        fig.savefig(f'../Plot/Signals/ECG/filteredecgNOTCH_{N_order}_{fn}.png', facecolor="white") 
         plt.close(fig)
 
 
