@@ -45,8 +45,3 @@ Thumbs.db
 *.ppt
 *.pptx
 *.xlsx
-<<<<<<< HEAD
-*.png
-src/firstscript.ipynb
-=======
->>>>>>> parent of 70ec9edf (Fonction pour plot les données des 7 patients, à revoir car je crois que les données ne sont pas dans le même ordre)
