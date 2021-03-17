@@ -32,7 +32,7 @@ h1 = {"00:07:80:0F:80:1A": {"position": 0, "device": "biosignalsplux", "device n
 #Fonction qui récupère les données ECG, EDA, RR et ACC de Dataset afin de les plots dans la deuxième fonction. Le paramètre nous sert à définir la taille des données que l'on veut
 
 def collectData(i):
-    data_ecg, data_ecg, data_rr, data_acc = [], [],[],[]
+    data_ecg, data_eda, data_rr, data_acc = [],[],[],[]
     for j in range(len(Datasets)):
         """ normalized_ecg = preprocessing.normalize(Datasets[j]['channel_1'][:i], norm="l2")
         normalized_ecg = preprocessing.normalize(Datasets[j]['channel_2'][:i], norm="l2")
@@ -278,8 +278,8 @@ def filtECG(N_order = 2):
             plt.ylabel(f'ECG {ifilt} (uS)')
             plt.legend()
             ifilt += 1
-    #plt.show()
-        fig.savefig(f'../filteredECGLP_{N_order}_{flp}.png', facecolor="white")
+        plt.show()
+        # fig.savefig(f'../filteredECGLP_{N_order}_{flp}.png', facecolor="white")
         plt.close(fig)
     
     for fbp in fpBP:
@@ -309,7 +309,7 @@ def filtECG(N_order = 2):
             ifilt += 1
         plt.show()
         ifilt = 1 
-        fig.savefig(f'../filteredecgBP_{N_order}_{fbp}.png', facecolor="white") 
+        #fig.savefig(f'../filteredecgBP_{N_order}_{fbp}.png', facecolor="white") 
         plt.close(fig)
 
     
@@ -339,9 +339,9 @@ def filtECG(N_order = 2):
             plt.ylabel(f'ECG {ifilt} (uS)')
             plt.legend()
             ifilt += 1
-    #plt.show()
+        plt.show()
         ifilt = 1 
-        fig.savefig(f'../Plot/Signals/ECG/filteredecgNOTCH_{N_order}_{fn}.png', facecolor="white") 
+        #fig.savefig(f'../Plot/Signals/ECG/filteredecgNOTCH_{N_order}_{fn}.png', facecolor="white") 
         plt.close(fig)
 
 

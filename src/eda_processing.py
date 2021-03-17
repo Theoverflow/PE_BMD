@@ -146,7 +146,7 @@ def transformDataplot(datatoresize,timeframedata):
 
 dataplot = transformDataplot(dataplot,protocolLabel)
 #%%
-plt.rcParams['font.size'] = 18
+
 #Fonction pour ploter les données, on sauvegarde 7 images rawdatasX.png comprenant 4 graphiques différents
 def plotDatas():
     for j in range(len(Datasets)):
@@ -202,7 +202,7 @@ fig.savefig(f'../Plot/Signals/EDA/EDA.png', facecolor="white")
 
 # Filtre passe-bas pour l'EDA. La fonction reçoit en argument l'ordre du filtre à créer qui est de 2 par défaut et trace le
 # On trace d'abord les filtres pour les différentes fréquences de coupure voulues, puis on trace les signaux EDA correspondant aux 7 expériences réalisées. Les fréquences de coupure sont par défaut 0.35 Hz et 35 Hz et proviennent de la littérature.
-
+plt.rcParams['font.size'] = 18
 def FiltEDA(N_order = 2):
 
     sample_frequence = 1000.    #Fréquence d'échantillonnage
@@ -437,6 +437,7 @@ def SWTLevel(nb):
 
 res = 16
 vcc = 3
+plt.rcParams['font.size'] = 18
 def processEDA():
     fig = plt.figure(figsize=(60,40), facecolor="white")
     #b, a = signal.butter(2, [0.5,35], 'bandpass', fs = 1000.)
@@ -501,15 +502,29 @@ def processEDA():
         signal_int = signal_int/max(signal_int)
         signal_int = signal_int * (max(signal_us_low_pass) / max(signal_int))
         plt.subplot(9, 1, ligne)
-        ligne += 1
+        
         time2 = np.linspace(0, len(signal_int)//1000, len(signal_int))
         plt.plot(time2, signal_int, label='Normalized processed signal')
-        plt.title(f'Processd EDA {ligne-1}')
+        plt.title(f'Processd EDA {ligne}')
         plt.xlabel('Time (s)')
         plt.ylabel(f'Normalized processed EDA (uS)')
+        plt.axvline(x=protocolLabel[ligne-1][0], color="black", linestyle="--", label="start")
+        plt.axvline(x=protocolLabel[ligne-1][1], color="blue", linestyle="--", label="baseline")
+        plt.axvline(x=protocolLabel[ligne-1][2], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[ligne-1][3], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[ligne-1][4], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[ligne-1][5], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[ligne-1][6], color="green", linestyle="--", label="description")
+        if ligne != 4:
+            plt.axvline(x=protocolLabel[ligne-1][7], color="black", linestyle="--", label="relax")
+            if ligne == 7 : 
+                plt.axvline(x=protocolLabel[ligne-1][8], color="yellow", linestyle="--", label="questionnary")
+                plt.axvline(x=protocolLabel[ligne-1][9], color="purple", linestyle="--", label="video")
+                plt.axvline(x=protocolLabel[ligne-1][10], color="brown", linestyle="--", label="video")
         plt.legend()
         processedEDA.append(signal_int)
         fig.tight_layout()
+        ligne += 1
     plt.show()
     #fig.savefig(f'../Plot/Signals/EDA/processedEDAnormalizedorder235Hz.png', facecolor="white")
     return processedEDA
