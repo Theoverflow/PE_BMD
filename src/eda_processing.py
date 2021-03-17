@@ -631,7 +631,7 @@ def plotCVxEDA():
         tm = np.linspace(0, len(y)//Fs, len(y))
 
         fig = plt.figure(figsize=(60,40), facecolor="white")
-        y = y/max(y)
+        #y = y/max(y)
         plt.subplot(4, 1, 1)
         plt.plot(tm, y)
         plt.title('Raw Normalized EDA signal')
@@ -713,7 +713,7 @@ def plotCVxEDA():
                 plt.axvline(x=protocolLabel[nbofpic-1][9], color="purple", linestyle="--", label="video")
                 plt.axvline(x=protocolLabel[nbofpic-1][10], color="brown", linestyle="--", label="video")
         #plt.show()
-        fig.savefig(f'../Plot/Signals/EDA/CVxEDA{nbofpic}labeled.png', facecolor="white")
+        fig.savefig(f'../Plot/Signals/EDA/CVxEDA{nbofpic}labeledprocessed.png', facecolor="white")
         nbofpic += 1
 
 plotCVxEDA()
@@ -772,21 +772,17 @@ plotECG(30000,40000) """
 #%%
 import scipy
 fig = plt.figure()
-sig = dataplot[1][1]
+sig = dataplot[0][5][30000:40000]
 N = len(sig)
 k = np.arange(N)
 Fs = 1000
-T = N/Fs
-frq = k/T
-frq = frq[range(N//2)]
+frq = scipy.fft.fftfreq(N, 1/Fs)
 T2 = 1/Fs
 timee = np.linspace(0, N//Fs, N)
-ffteda2 = scipy.fft.fft(sig)
-ffteda2 = ffteda2[range(N//2)]/max(ffteda2[range(N//2)])
-#freq = scipy.fft.fftfreq(N, d=1/1000.0)
-amp = 2.0/N * np.abs(ffteda2)
+ffteda2 = scipy.fft.fft(np.ravel(sig))
+amp = 2.0 * np.abs(ffteda2)
 plt.subplot(2,1,1)
-plt.plot(frq, np.abs(ffteda2),'k')
+plt.plot(frq[:N//2], amp[:N//2],'k')
 plt.subplot(2,1,2)
 plt.plot(timee,sig)
 fig.tight_layout()

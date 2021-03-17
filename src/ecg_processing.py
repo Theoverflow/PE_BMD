@@ -2,6 +2,7 @@
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
+from numpy.core.function_base import linspace
 import scipy.stats as stats
 from scipy import signal
 from pywt import swt, iswt, swt_max_level
@@ -144,6 +145,85 @@ def findSNR():
         print("SNR for ECG signal: {} dB".format(snr_ecg_db))
     print("\n\n")
 findSNR()
+
+#%%
+from scipy.integrate import simps
+from bokeh.io import output_file, show
+from bokeh.layouts import gridplot
+from bokeh.plotting import save
+
+def ECGMetrics(sig, nb):
+    sig = np.array(sig).flatten()
+    output_file(f"../Plot/Signals/ECG/Metrics{nb}.html")
+    
+    Fs = 1000
+    timee = linspace(0,len(sig)//Fs, len(sig))
+    tachogram_data, tachogram_time = bsnb.tachogram(sig, Fs, signal=True, out_seconds=True)
+    f1 = bsnb.plot(tachogram_time, tachogram_data, x_axis_label='Time (s)', y_axis_label='Cardiac Cycle (s)', title="Tachogram",  x_range=(0, timee[-1]))
+    tachogram_data_NN, tachogram_time_NN = bsnb.remove_ectopy(tachogram_data, tachogram_time)
+    bpm_data = (1 / np.array(tachogram_data_NN)) * 60
+    f2 = bsnb.plot_post_ecto_rem_tachogram(tachogram_time, tachogram_data, tachogram_time_NN, tachogram_data_NN)
+    # Maximum, Minimum and Average RR Interval
+    max_rr = max(tachogram_data_NN)
+    min_rr = min(tachogram_data_NN)
+    avg_rr = np.average(tachogram_data_NN)
+
+    # Maximum, Minimum and Average Heart Rate
+    max_hr = 1 / min_rr # Cycles per second
+    max_bpm = max_hr * 60 # BPM
+
+    min_hr = 1 / max_rr # Cycles per second
+    min_bpm = min_hr * 60 # BPM
+
+    avg_hr = 1 / avg_rr # Cyles per second
+    avg_bpm = avg_hr * 60 # BPM
+
+    # SDNN
+    sdnn = np.std(tachogram_data_NN)
+
+    time_param_dict = {"Maximum RR": max_rr, "Minimum RR": min_rr, "Average RR": avg_rr, "Maximum BPM": max_bpm, "Minimum BPM": min_bpm, "Average BPM": avg_bpm, "SDNN": sdnn}
+    f3 = bsnb.plot_hrv_parameters(tachogram_time, tachogram_data, time_param_dict)
+
+    # Auxiliary Structures
+    tachogram_diff = np.diff(tachogram_data)
+    tachogram_diff_abs = np.fabs(tachogram_diff)
+    sdsd = np.std(tachogram_diff)
+    rr_i = tachogram_data[:-1]
+    rr_i_plus_1 = tachogram_data[1:]
+    
+    # PoincarÃ© Parameters
+    sd1 = np.sqrt(0.5 * np.power(sdsd, 2))
+    sd2 = np.sqrt(2 * np.power(sdnn, 2) - np.power(sd1, 2))
+    sd1_sd2 = sd1 / sd2
+    f4 = bsnb.plot_poincare(tachogram_data)
+    
+    # Auxiliary Structures
+    freqs, power_spect = bsnb.psd(tachogram_time, tachogram_data) # Power spectrum.
+
+    # Frequemcy Parameters
+    freq_bands = {"ulf_band": [0.00, 0.003], "vlf_band": [0.003, 0.04], "lf_band": [0.04, 0.15], "hf_band": [0.15, 0.40]}
+    power_values = {}
+    total_power = 0
+
+    band_keys = freq_bands.keys()
+    for band in band_keys:
+        freq_band = freq_bands[band]
+        freq_samples_inside_band = [freq for freq in freqs if freq >= freq_band[0] and freq <= freq_band[1]]
+        power_samples_inside_band = [p for p, freq in zip(power_spect, freqs) if freq >= freq_band[0] and freq <= freq_band[1]]
+        power = round(simps(power_samples_inside_band, freq_samples_inside_band), 5)
+        
+        # Storage of power inside each band
+        power_values[band] = power
+        
+        # Total power update
+        total_power = total_power + power
+    
+    f5 = bsnb.plot_hrv_power_bands(freqs, power_spect)
+
+    grid = gridplot([[f1],[f2],[f3],[f4],[f5]])
+    show(grid)
+for i in range(7):
+    ECGMetrics(dataplot[0][i], i)
 
 #%%
 # Fonction pour déterminer les pics R
