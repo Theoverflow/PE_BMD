@@ -29,15 +29,16 @@ import biosignalsnotebooks as bsnb
 
 Files = []
 Datasets = []
-for i in range(1,8):
-    if i==1:
-        Files.append(h5py.File('../Correlation_stress_datasets/1st_stress.h5', 'r'))
-    elif i==2:
-        Files.append(h5py.File('../Correlation_stress_datasets/2nd_stress.h5', 'r'))
-    elif i==3:
-        Files.append(h5py.File('../Correlation_stress_datasets/3rd_stress.h5', 'r'))
-    else:
-        Files.append(h5py.File(f'../Correlation_stress_datasets/{i}th_stress.h5', 'r'))
+Files.append(h5py.File('../Correlation_stress_datasets/1st_stress.h5', 'r'))
+Files.append(h5py.File('../Correlation_stress_datasets/2nd_stress.h5', 'r'))
+Files.append(h5py.File('../Correlation_stress_datasets/3rd_stress.h5', 'r'))
+for i in range(4,8):
+    Files.append(h5py.File(f'../Correlation_stress_datasets/{i}th_stress.h5', 'r'))
+Files.append(h5py.File(f'../Correlation_stress_datasets/alexandra_stresstest_1.h5', 'r'))
+Files.append(h5py.File(f'../Correlation_stress_datasets/alexandra_stresstest_2.h5', 'r'))
+Files.append(h5py.File(f'../Correlation_stress_datasets/rachid_stresstest_1.h5', 'r'))
+Files.append(h5py.File(f'../Correlation_stress_datasets/rachid_stresstest_2.h5', 'r'))
+TAILLE = 11
 for el in Files:
     Datasets.append(el['00:07:80:0F:80:1A']['raw'])
 
@@ -134,11 +135,15 @@ protocolLabel = [[50.5,111.3,121.9,153.4,161.6,197.1,211.6,397.7],\
 [60.1,80.7,115.6,121.3,159.7,183.7,220.9],\
 [29,90,99,130,139,180,220,255],\
 [17,78,95,128,135,171,219,230],\
-[9.1,71.2,92.4,125.5,131.7,164.9,179,205,254,345,388]]
+[9.1,71.2,92.4,125.5,131.7,164.9,179,205,254,345,388],\
+[19,43,104,113,144,156,196,205,217,247,288,298,322],\
+[23,34,95,101,162,170,232,237,278,307,382,392,680],\
+[29,38,120,125,185,194,254,258,289,325,387,395],\
+[17,35,96,100,161,168,229,234,277,301,362,380,667]]
 #%%
 
 def transformDataplot(datatoresize,timeframedata):
-    for j in range(7):
+    for j in range(7): #A modifier et mettre TAILLE
         taille = int(1000*timeframedata[j][-1])
         for i in range(len(datatoresize)):
             datatoresize[i][j] = datatoresize[i][j][:taille]
@@ -146,7 +151,7 @@ def transformDataplot(datatoresize,timeframedata):
 
 dataplot = transformDataplot(dataplot,protocolLabel)
 #%%
-
+plt.rcParams['font.size'] = 18
 #Fonction pour ploter les données, on sauvegarde 7 images rawdatasX.png comprenant 4 graphiques différents
 def plotDatas():
     for j in range(len(Datasets)):
@@ -161,37 +166,129 @@ def plotDatas():
             plt.xlabel('Acquistition')
             plt.ylabel(f'{label[i-1]} Value')
             plt.tick_params(axis='both', which='major')
-            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
-            plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
-            plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
-            plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
-            plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
-            plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
-            plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="description")
-            if j != 3:
-                plt.axvline(x=protocolLabel[j][7], color="black", linestyle="--", label="relax")
-                if j == 6 : 
-                    plt.axvline(x=protocolLabel[j][8], color="yellow", linestyle="--", label="questionnary")
-                    plt.axvline(x=protocolLabel[j][9], color="purple", linestyle="--", label="video")
-                    plt.axvline(x=protocolLabel[j][10], color="brown", linestyle="--", label="video")
+            if j < 3:                
+                plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+                plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+                plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+                plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+                plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+            if j == 3:
+                plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start/baseline")
+                plt.axvline(x=protocolLabel[j][1], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][2], color="red", linestyle="--", label="count-3")
+                plt.axvline(x=protocolLabel[j][3], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][4], color="red", linestyle="--", label="count-7")
+                plt.axvline(x=protocolLabel[j][5], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][6], color="orange", linestyle="--", label="relax")
+            if j==4 or j==5  : 
+                plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+                plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+                plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+                plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+                plt.axvline(x=protocolLabel[j][6], color="purple", linestyle="--", label="questionnary")
+                plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+            if j == 6:
+                plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+                plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+                plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+                plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+                plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="big breath")
+                plt.axvline(x=protocolLabel[j][7], color="purple", linestyle="--", label="questionnary")
+                plt.axvline(x=protocolLabel[j][8], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][9], color="yellow", linestyle="--", label="fake video")
+                plt.axvline(x=protocolLabel[j][10], color="orange", linestyle="--", label="relax")
+            if j >= 7:
+                plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start video")
+                plt.axvline(x=protocolLabel[j][1], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][2], color="blue", linestyle="--", label="baseline")
+                plt.axvline(x=protocolLabel[j][3], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][4], color="red", linestyle="--", label="count forward")
+                plt.axvline(x=protocolLabel[j][5], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][6], color="red", linestyle="--", label="count-3")
+                plt.axvline(x=protocolLabel[j][7], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][8], color="red", linestyle="--", label="count forward")
+                plt.axvline(x=protocolLabel[j][9], color="green", linestyle="--", label="description")
+                plt.axvline(x=protocolLabel[j][10], color="red", linestyle="--", label="count-7")
+                plt.axvline(x=protocolLabel[j][11], color="green", linestyle="--", label="description")
             plt.legend()
             i += 1
+        fig.tight_layout()
         plt.show()
         fig.savefig(f'../Plot/rawdataslabeled{j+1}.png',facecolor="white")
 plotDatas()
-
+#%%
 fig = plt.figure(figsize=(60,40), facecolor="white")
-nbi = 1
+j = 0
 for el in dataplot[1]:
     signal_mv = signal_us = ((el / 2**16) * 3) / 0.12
     tm = np.linspace(0, len(signal_mv)//1000, len(signal_mv))
-    ax = fig.add_subplot(7,1,nbi)
-    ax.set_title(f'Raw EDA Acquisition {nbi}')
+    ax = fig.add_subplot(TAILLE,1,j+1)
+    ax.set_title(f'Raw EDA Acquisition {j+1}')
     ax.set_xlabel('Time (s)')
-    ax.set_ylabel(f'Electrodermal response (uS) {nbi}')
+    ax.set_ylabel(f'Electrodermal response (uS) {j+1}')
     plt.plot(tm, signal_mv)
+    plt.tick_params(axis='both', which='major')
+    if j < 3:                
+        plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+        plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+        plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+    if j == 3:
+        plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start/baseline")
+        plt.axvline(x=protocolLabel[j][1], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][2], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[j][3], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][4], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[j][5], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][6], color="orange", linestyle="--", label="relax")
+    if j==4 or j==5  : 
+        plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+        plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+        plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[j][6], color="purple", linestyle="--", label="questionnary")
+        plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+    if j == 6:
+        plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+        plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+        plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="big breath")
+        plt.axvline(x=protocolLabel[j][7], color="purple", linestyle="--", label="questionnary")
+        plt.axvline(x=protocolLabel[j][8], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][9], color="yellow", linestyle="--", label="fake video")
+        plt.axvline(x=protocolLabel[j][10], color="orange", linestyle="--", label="relax")
+    if j >= 7:
+        plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start video")
+        plt.axvline(x=protocolLabel[j][1], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][2], color="blue", linestyle="--", label="baseline")
+        plt.axvline(x=protocolLabel[j][3], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][4], color="red", linestyle="--", label="count forward")
+        plt.axvline(x=protocolLabel[j][5], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][6], color="red", linestyle="--", label="count-3")
+        plt.axvline(x=protocolLabel[j][7], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][8], color="red", linestyle="--", label="count forward")
+        plt.axvline(x=protocolLabel[j][9], color="green", linestyle="--", label="description")
+        plt.axvline(x=protocolLabel[j][10], color="red", linestyle="--", label="count-7")
+        plt.axvline(x=protocolLabel[j][11], color="green", linestyle="--", label="description")
     #ax.legend()
-    nbi += 1
+    j += 1
+fig.tight_layout()
 plt.show()
 fig.savefig(f'../Plot/Signals/EDA/EDA.png', facecolor="white")
 #plotDatas()
@@ -220,7 +317,7 @@ def FiltEDA(N_order = 2):
         b, a = signal.butter(N_order, flp, 'low', fs = sample_frequence)
         w, h = signal.freqs(b, a)
         ifilt = 1
-        plt.subplot(8,1,ifilt)
+        plt.subplot(TAILLE+1,1,ifilt)
         ifilt += 1
         plt.semilogx(w, 20 * np.log10(abs(h)))
         plt.title(f'Butterworth {N_order} order filter with frequency cutoff at cutoff {flp} Hz')
@@ -231,7 +328,7 @@ def FiltEDA(N_order = 2):
             signal_us = ((el / 2**res) * vcc) / 0.12 # On transforme le signal pour lui donner une dimension (formule trouvée sur biosignalplus)
             filteredel = signal.filtfilt(b, a, np.ravel(signal_us)) #Application du premier filtre sur le signal
             time = np.linspace(0, len(el)//1000, len(el))
-            plt.subplot(8,1,ifilt)
+            plt.subplot(TAILLE+1,1,ifilt)
             plt.plot(time, signal_us, label='Raw EDA')
             plt.plot(time, filteredel, 'r-', label=f'Low-pass filtered EDA at {flp} Hz')
             plt.title(f'Filtered EDA {ifilt-1}')
@@ -248,7 +345,7 @@ def FiltEDA(N_order = 2):
         b, a = signal.butter(N_order, fbp, 'bandpass', fs = sample_frequence)
         w, h = signal.freqs(b, a)
         ifilt = 1
-        plt.subplot(8,1,ifilt)
+        plt.subplot(TAILLE+1,1,ifilt)
         ifilt += 1
         plt.semilogx(w, 20 * np.log10(abs(h)))
         plt.title(f'Butterworth {N_order} order  BPfilter with frequency cutoff at cutoff [{fbp[0]}-{fbp[1]}] Hz')
@@ -260,7 +357,7 @@ def FiltEDA(N_order = 2):
             signal_us = ((el / 2**res) * vcc) / 0.12 # On transforme le signal pour lui donner une dimension (formule trouvée sur biosignalplus)
             filteredel = signal.filtfilt(b, a, np.ravel(signal_us)) #Application du premier filtre sur le signal
             time = np.linspace(0, len(el)//1000, len(el))
-            plt.subplot(8,1,ifilt)
+            plt.subplot(TAILLE+1,1,ifilt)
             plt.plot(time, signal_us, label='Raw EDA')
             plt.plot(time, filteredel, 'r-', label=f'Band-pass filtered EDA at [{fbp[0]}-{fbp[1]}] Hz')
             plt.title(f'Filtered EDA {ifilt-1}')
@@ -281,7 +378,7 @@ def FiltEDA(N_order = 2):
         b, a = signal.iirnotch(fn, Q, sample_frequence)
         w, h = signal.freqz(b, a)
         ifilt = 1
-        plt.subplot(8,1,ifilt)
+        plt.subplot(TAILLE+1,1,ifilt)
         ifilt += 1
         plt.semilogx(w, 20 * np.log10(abs(h)))
         plt.title(f'Butterworth {N_order} order  BPfilter with frequency cutoff at cutoff {fn} Hz')
@@ -292,7 +389,7 @@ def FiltEDA(N_order = 2):
             signal_us = ((el / 2**res) * vcc) / 0.12 # On transforme le signal pour lui donner une dimension (formule trouvée sur biosignalplus)
             filteredel = signal.filtfilt(b, a, np.ravel(signal_us)) #Application du premier filtre sur le signal
             time = np.linspace(0, len(el)//1000, len(el))
-            plt.subplot(8,1,ifilt)
+            plt.subplot(TAILLE+1,1,ifilt)
             plt.plot(time, signal_us, label='Raw EDA')
             plt.plot(time, filteredel, 'r-', label=f'Band-pass filtered EDA at {fn} Hz')
             plt.title(f'Filtered EDA {ifilt-1}')
@@ -305,14 +402,11 @@ def FiltEDA(N_order = 2):
         fig.savefig(f'../Plot/Signals/EDA/filterededaNOTCH_{N_order}_{fn}.png', facecolor="white") 
         plt.close(fig)
 
-
 for j in range(1, 5):
     FiltEDA(j)
 
 
 # In[ ]:
-
-
 # Smooth function 
 
 def smooth(x,window_len=11,window='hanning'):
@@ -413,7 +507,10 @@ def extractEDAParameters(signal_int, sr):
         if signal_int[i] <= eda_max - 0.50 * param_dict["EDR amplitude"]:
             time_50 = i / sr
             break
-    param_dict["Recovery time to 50% amplitude"] = time_50 - eda_max_time
+    if time_50 == None:
+        param_dict["Recovery time to 50% amplitude"] = 'None'
+    else:
+        param_dict["Recovery time to 50% amplitude"] = time_50 - eda_max_time
 
     #[Recovery time to 63% amplitude]
     time_63 = None
@@ -421,7 +518,10 @@ def extractEDAParameters(signal_int, sr):
         if signal_int[i] <= eda_max - 0.63 * param_dict["EDR amplitude"]:
             time_63 = i / sr
             break
-    param_dict["Recovery time to 63% amplitude"] = time_63 - eda_max_time
+    if time_63 == None:
+        param_dict["Recovery time to 63% amplitude"] = 'None'
+    else:
+        param_dict["Recovery time to 63% amplitude"] = time_63 - eda_max_time
     return param_dict
 
 
@@ -434,7 +534,7 @@ def extractEDAParameters(signal_int, sr):
 def SWTLevel(nb):
     a = nb//64
     return a*64
-
+#%%
 res = 16
 vcc = 3
 plt.rcParams['font.size'] = 18
@@ -442,6 +542,7 @@ def processEDA():
     fig = plt.figure(figsize=(60,40), facecolor="white")
     #b, a = signal.butter(2, [0.5,35], 'bandpass', fs = 1000.)
     b, a = signal.butter(2, 35, 'low', fs = 1000.)
+    j = 0
     ligne = 1
     processedEDA = []
     for el in dataplot[1]:
@@ -489,9 +590,9 @@ def processEDA():
         filt_detail_coeffs = deepcopy(detail_coeffs)
         count_1 = 0
         count_2 = 0
-        for j in range(0, len(filt_detail_coeffs)):
-            if detail_coeffs[j] <= low_thr or detail_coeffs[j] >= high_thr:
-                filt_detail_coeffs[j] = 0
+        for ji in range(0, len(filt_detail_coeffs)):
+            if detail_coeffs[ji] <= low_thr or detail_coeffs[ji] >= high_thr:
+                filt_detail_coeffs[ji] = 0
             else:
                 continue
         # Update of the SWT decomposition tupple.
@@ -501,36 +602,87 @@ def processEDA():
         signal_int = smooth(rec_signal, sr * 3)
         signal_int = signal_int/max(signal_int)
         signal_int = signal_int * (max(signal_us_low_pass) / max(signal_int))
-        plt.subplot(9, 1, ligne)
+        plt.subplot(TAILLE, 1, ligne)
         
         time2 = np.linspace(0, len(signal_int)//1000, len(signal_int))
         plt.plot(time2, signal_int, label='Normalized processed signal')
         plt.title(f'Processd EDA {ligne}')
         plt.xlabel('Time (s)')
         plt.ylabel(f'Normalized processed EDA (uS)')
-        plt.axvline(x=protocolLabel[ligne-1][0], color="black", linestyle="--", label="start")
-        plt.axvline(x=protocolLabel[ligne-1][1], color="blue", linestyle="--", label="baseline")
-        plt.axvline(x=protocolLabel[ligne-1][2], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[ligne-1][3], color="red", linestyle="--", label="count-3")
-        plt.axvline(x=protocolLabel[ligne-1][4], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[ligne-1][5], color="red", linestyle="--", label="count-7")
-        plt.axvline(x=protocolLabel[ligne-1][6], color="green", linestyle="--", label="description")
-        if ligne != 4:
-            plt.axvline(x=protocolLabel[ligne-1][7], color="black", linestyle="--", label="relax")
-            if ligne == 7 : 
-                plt.axvline(x=protocolLabel[ligne-1][8], color="yellow", linestyle="--", label="questionnary")
-                plt.axvline(x=protocolLabel[ligne-1][9], color="purple", linestyle="--", label="video")
-                plt.axvline(x=protocolLabel[ligne-1][10], color="brown", linestyle="--", label="video")
+        if j < 3:                
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+            plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+            plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+        if j == 3:
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start/baseline")
+            plt.axvline(x=protocolLabel[j][1], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][2], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][3], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][4], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][5], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][6], color="orange", linestyle="--", label="relax")
+        if j==4 or j==5  : 
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+            plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+            plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][6], color="purple", linestyle="--", label="questionnary")
+            plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+        if j == 6:
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+            plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+            plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="big breath")
+            plt.axvline(x=protocolLabel[j][7], color="purple", linestyle="--", label="questionnary")
+            plt.axvline(x=protocolLabel[j][8], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][9], color="yellow", linestyle="--", label="fake video")
+            plt.axvline(x=protocolLabel[j][10], color="orange", linestyle="--", label="relax")
+        if j >= 7:
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start video")
+            plt.axvline(x=protocolLabel[j][1], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][2], color="blue", linestyle="--", label="baseline")
+            plt.axvline(x=protocolLabel[j][3], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][4], color="red", linestyle="--", label="count forward")
+            plt.axvline(x=protocolLabel[j][5], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][6], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][7], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][8], color="red", linestyle="--", label="count forward")
+            plt.axvline(x=protocolLabel[j][9], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][10], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][11], color="green", linestyle="--", label="description")
         plt.legend()
         processedEDA.append(signal_int)
-        fig.tight_layout()
         ligne += 1
-    plt.show()
-    #fig.savefig(f'../Plot/Signals/EDA/processedEDAnormalizedorder235Hz.png', facecolor="white")
+        j+=1
+    #plt.show()
+    fig.tight_layout()
+    fig.savefig(f'../Plot/Signals/EDA/processedEDAnormalizedorder235Hz.png', facecolor="white")
     return processedEDA
-
-processEDA()
-
+#%%
+dataprocessed = processEDA()
+nbdata = 0
+sr = 1000
+for el in dataprocessed:
+    dataparam = []
+    limitList = [protocolLabel[nbdata][2],protocolLabel[nbdata][3],protocolLabel[nbdata][4],protocolLabel[nbdata][6]]
+    if nbdata == 3:
+        limitList = [protocolLabel[nbdata][1],protocolLabel[nbdata][2],protocolLabel[nbdata][3],protocolLabel[nbdata][5]]
+    if nbdata == 6:
+        limitList = [protocolLabel[nbdata][2],protocolLabel[nbdata][3],protocolLabel[nbdata][4],protocolLabel[nbdata][7]]
+    dataparam.append(extractEDAParameters(el[int(sr*limitList[0]):int(sr*limitList[1])],sr))
+    dataparam.append(extractEDAParameters(el[int(sr*limitList[2]):int(sr*limitList[3])],sr))
+    nbdata += 1
+    print(f'EDA {nbdata} Parameter : \n {dataparam} \n')
 
 # In[ ]:
 
@@ -633,11 +785,11 @@ def cvxEDA(y, delta, tau0=2., tau1=0.7, delta_knot=10., alpha=8e-4, gamma=1e-2,
     e = y - r - t
 
     return (np.array(a).ravel() for a in (r, p, t, l, d, e, obj))
-
+#%%
 #dataprocessed = processEDA()
-def plotCVxEDA():
+def plotCVxEDA(dataa):
     nbofpic = 1
-    dataa = processEDA()
+    j = 0
     for el in dataa:
         y = np.array(el)
         yn = stats.zscore(y)
@@ -731,7 +883,8 @@ def plotCVxEDA():
         fig.savefig(f'../Plot/Signals/EDA/CVxEDA{nbofpic}labeledprocessed.png', facecolor="white")
         nbofpic += 1
 
-plotCVxEDA()
+cvxedaData = processEDA()
+plotCVxEDA(cvxedaData)
 
 
 # # Explication de cvxEDA
@@ -749,81 +902,212 @@ plotCVxEDA()
 # 
 # En considérant le problème comme un problème d'optimisation convexe quadratique, on obtient la forme de ses différentes composantes ainsi que l'activité des nerfs neuromoteurs p
 
-# In[ ]:
-
-
-""" import heartpy
-def plotECG(start=None, stop=None):
-    Fs = 1000.0
-    fig = plt.figure(figsize=(60,20), facecolor="white")
-    for i in range(len(dataplot[0])):
-        if start or stop:
-            ecg = np.array(dataplot[0][i][start:stop])
-        else:
-            ecg = np.array(dataplot[0][i])
-        ecg2 = heartpy.filtering.filter_signal(np.ravel(ecg), cutoff = 0.01, sample_rate = Fs, filtertype = 'notch')
-        ecg2 = stats.zscore(ecg2)
-        tm = np.linspace(0, len(ecg)//1000, len(ecg))
-        if start or stop:
-            tm2 = np.linspace(start//1000, stop//1000, len(ecg2))
-        else: 
-            tm2 = np.linspace(0, len(ecg2)//1000, len(ecg2))
-        plt.subplot(4, 2, i+1)
-        plt.plot(tm, ecg)
-        plt.title(f'ecg Acquisition')
-        plt.xlabel('Acquistition')
-        plt.ylabel(f'ecg Value')
-        plt.legend()
-        plt.subplot(2, 1, 2)
-        plt.plot(tm2, ecg2)
-        plt.title(f'ecg2 Acquisition {i+1}')
-        plt.xlabel('Acquistition')
-        plt.ylabel(f'ecg2 Value {i+1}')
-        plt.legend()
-    plt.show()
-    fig.savefig(f"data{start}_{stop}.png")
-plotECG()
-plotECG(30000,40000) """
 #%%
 import scipy
-fig = plt.figure()
-sig = dataplot[0][5][30000:40000]
-N = len(sig)
-k = np.arange(N)
-Fs = 1000
-frq = scipy.fft.fftfreq(N, 1/Fs)
-T2 = 1/Fs
-timee = np.linspace(0, N//Fs, N)
-ffteda2 = scipy.fft.fft(np.ravel(sig))
-amp = 2.0 * np.abs(ffteda2)
-plt.subplot(2,1,1)
-plt.plot(frq[:N//2], amp[:N//2],'k')
-plt.subplot(2,1,2)
-plt.plot(timee,sig)
-fig.tight_layout()
-plt.show()
+def plotEDAFFT(nbedafft):
+    fig = plt.figure(figsize=(60,40), facecolor='white')
+    sig = dataplot[0][nbedafft]
+    sig = sig/max(sig)
+    b, a = signal.butter(2, 35, 'low', fs = 1000.)
+    signal_us_low_pass = signal.filtfilt(b, a, np.ravel(sig))
+    N = len(sig)
+    k = np.arange(N)
+    Fs = 1000
+    frq = scipy.fft.fftfreq(N, 1/Fs)
+    T2 = 1/Fs
+    timee = np.linspace(0, N//Fs, N)
+    ffteda2 = scipy.fft.fft(np.ravel(sig))
+    amp = 2.0 * np.abs(ffteda2)
+    plt.plot(frq[1:15000], amp[1:15000])
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel(f'EDA {nbedafft} amplitude')
+    plt.title(f'EDA {nbedafft} frequency content')
+    fig.tight_layout()
+    plt.show()
+    fig.savefig(f'../Plot/Signals/EDA/FFT{nbedafft}.png', facecolor='white')
+
+for i in range(len(dataplot[1])):
+    plotEDAFFT(i)
 #%%
 Fs = 1000
-for el in dataplot[1]:
-    sig = el
-    N = len(sig)
-    timee = np.linspace(0, N//Fs, N)
-    fig, axes = plt.subplots(2,1)
-    axes[0].plot(timee, sig)
-    axes[0].set_xlim([timee[0], timee[-1]])
+fig = plt.figure(figsize=(60,40), facecolor='white')
+i = 1
+j = 0
+#for el in dataplot[1]:
+sig = dataplot[1][3]
+N = len(sig)
+timee = np.linspace(0, N//Fs, N)
+#plt.subplot(11,1,i)
+timee = np.arange(len(sig)) / Fs
+freq = np.linspace(0.1, 30, 100)
+w = 10.
+widths = w*Fs / (2*freq*np.pi)
+cwtm = scipy.signal.cwt(np.ravel(sig), scipy.signal.morlet2, widths, w=w)
+spectrogram = np.log(np.abs(cwtm)) # log scale
 
-    t = np.arange(len(sig)) / Fs
-    freq = np.linspace(0.1, 30, 100)
-    w = 10.
-    widths = w*Fs / (2*freq*np.pi)
-    cwtm = scipy.signal.cwt(np.ravel(sig), scipy.signal.morlet2, widths, w=w)
-    spectrogram = np.log(np.abs(cwtm)) # log scale
+plt.imshow(spectrogram, cmap='viridis', origin='lower', aspect='auto', extent=[t[0], t[-1], freq[0], freq[-1]],
+        interpolation='bicubic')
+plt.xlabel('Time (sec)')
+plt.ylabel('Frequency (Hz)')
+plt.title('EDA 4 Spectrogram')
 
-    axes[1].imshow(spectrogram, cmap='viridis', origin='lower', aspect='auto', extent=[t[0], t[-1], freq[0], freq[-1]],
-            interpolation='bicubic')
-    axes[1].set_xlabel('Time (sec)')
-    axes[1].set_ylabel('Freq (Hz)')
-    plt.show
+if j < 3:                
+    plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+    plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+    plt.axvline(x=protocolLabel[j][2], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+    plt.axvline(x=protocolLabel[j][4], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+    plt.axvline(x=protocolLabel[j][6], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+if j == 3:
+    plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start/baseline")
+    plt.axvline(x=protocolLabel[j][1], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][2], color="red", linestyle="--", label="count-3")
+    plt.axvline(x=protocolLabel[j][3], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][4], color="red", linestyle="--", label="count-7")
+    plt.axvline(x=protocolLabel[j][5], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][6], color="orange", linestyle="--", label="relax")
+if j==4 or j==5  : 
+    plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+    plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+    plt.axvline(x=protocolLabel[j][2], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+    plt.axvline(x=protocolLabel[j][4], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+    plt.axvline(x=protocolLabel[j][6], color="purple", linestyle="--", label="questionnary")
+    plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+if j == 6:
+    plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+    plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+    plt.axvline(x=protocolLabel[j][2], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+    plt.axvline(x=protocolLabel[j][4], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+    plt.axvline(x=protocolLabel[j][6], color="purple", linestyle="--", label="big breath")
+    plt.axvline(x=protocolLabel[j][7], color="purple", linestyle="--", label="questionnary")
+    plt.axvline(x=protocolLabel[j][8], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][9], color="yellow", linestyle="--", label="fake video")
+    plt.axvline(x=protocolLabel[j][10], color="orange", linestyle="--", label="relax")
+if j >= 7:
+    plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start video")
+    plt.axvline(x=protocolLabel[j][1], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][2], color="blue", linestyle="--", label="baseline")
+    plt.axvline(x=protocolLabel[j][3], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][4], color="red", linestyle="--", label="count forward")
+    plt.axvline(x=protocolLabel[j][5], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][6], color="red", linestyle="--", label="count-3")
+    plt.axvline(x=protocolLabel[j][7], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][8], color="red", linestyle="--", label="count forward")
+    plt.axvline(x=protocolLabel[j][9], color="purple", linestyle="--", label="description")
+    plt.axvline(x=protocolLabel[j][10], color="red", linestyle="--", label="count-7")
+    plt.axvline(x=protocolLabel[j][11], color="purple", linestyle="--", label="description")
+plt.legend()
+j += 1
+i += 1
+fig.tight_layout()
+plt.show()
+fig.savefig('../Plot/Signals/EDA/spectrogram', facecolor='white')
 
 
+# %%
+def singleProcessedEDA(el):
+    Fs = 1000
+    res = 16
+    vcc = 3
+    signal_us = ((el / 2**res) * vcc) / 0.12
+    b,a = signal.butter(2, 35, 'low', fs=Fs)
+    signal_us_low_pass = signal.filtfilt(b, a, np.ravel(signal_us))
+    N = len(signal_us_low_pass)
+
+    swtN = SWTLevel(N) #On détermine la taille maximale qu'on peut avoir pour qu'elle soit un multiple du carré du niveau par défaut (niveau 8 donc 64)
+    lvl = swt_max_level(swtN) #Calcul du niveaux max qu'on peut obtenir avec la taille swtN
+    swt_orig_coeffs = swt(signal_us_low_pass[:swtN], "haar", level=lvl) #Application ondelette de Haar
+    detail_coeffs = swt_orig_coeffs[0][1]
+    scaling_coeffs = swt_orig_coeffs[0][0]
+    time = np.linspace(0, N//1000, N)
+    time1 = np.linspace(0, swtN//1000, swtN)
+
+    #Generation of a Gaussian Mixture model. "One Gaussian component describes coefficients centered around zero, and the other describes those spread out at larger values... The Gaussian with smaller variance corresponds to the wavelet coefficients of Skin Conductance Level (SCL) , while the Gaussian with larger variance corresponds to the wavelet coefficients of Skin Conductance Responses (SCRs) "
+    gaussian_mixt = GaussianMixture(n_components=2, covariance_type="spherical")
+    detail_coeffs_col = np.reshape(detail_coeffs, (len(detail_coeffs), 1))
+    gaussian_mixt.fit(detail_coeffs_col)
+
+    #Determination of the Cumulative Density Function ( Φmixt ) of the previously defined Gaussian Mixture Φmixt=weight1×Φ1+weight2×Φ2
+    norm_1 = norm(loc=gaussian_mixt.means_[0][0], scale=np.sqrt(gaussian_mixt.covariances_[0])) 
+    norm_2 = norm(loc=gaussian_mixt.means_[1][0], scale=np.sqrt(gaussian_mixt.covariances_[1])) 
+    weight_1 = gaussian_mixt.weights_[0]
+    weight_2 = gaussian_mixt.weights_[1]
+    sort_detail_coeffs = np.sort(detail_coeffs)
+    norm_1_cdf = norm_1.cdf(sort_detail_coeffs)
+    norm_2_cdf = norm_2.cdf(sort_detail_coeffs)
+    cdf_mixt = weight_1 * norm_1_cdf + weight_2 * norm_2_cdf
+
+    #  Definition of motion artifact removal thresholds using the Cumulative Distribution Function (CDF) of the previously defined Gaussian Mixture model, considering an artifact proportion value  δ  equal to 0.01
+    art_prop = 0.01 # Artifact proportion value.
+    low_thr = None 
+    high_thr = None
+    # Check when the CDF mixture function reaches values art_prop / 2 and 1 - art_prop / 2.
+    for i in range(0, len(norm_1_cdf)):
+        # Low threshold clause.
+        if cdf_mixt[i] - cdf_mixt[0] >= art_prop and low_thr == None:
+            low_thr = sort_detail_coeffs[i]
+        # High threshold clause.
+        if cdf_mixt[-1] - cdf_mixt[i] <= art_prop and high_thr == None:
+            high_thr = sort_detail_coeffs[i]
+    
+    #Removal of wavelet coefficients related with motion artifacts
+    filt_detail_coeffs = deepcopy(detail_coeffs)
+    count_1 = 0
+    count_2 = 0
+    for ji in range(0, len(filt_detail_coeffs)):
+        if detail_coeffs[ji] <= low_thr or detail_coeffs[ji] >= high_thr:
+            filt_detail_coeffs[ji] = 0
+        else:
+            continue
+    # Update of the SWT decomposition tupple.
+    sr = 1000
+    swt_coeffs = [(np.array(scaling_coeffs), np.array(filt_detail_coeffs))]
+    rec_signal = iswt(swt_coeffs, "haar")
+    signal_int = smooth(rec_signal, sr * 3)
+    signal_int = signal_int/max(signal_int)
+    signal_int = signal_int * (max(signal_us_low_pass) / max(signal_int))
+    return signal_us_low_pass, signal_int
+def singleEDAMetrics(el):
+    Fs = 1000
+    fig = plt.figure(figsize=(60,40), facecolor="white")
+    plt.rcParams['font.size'] = 18
+    eda9_filtered, eda9_processed = singleProcessedEDA(el)
+    time1 = np.linspace(0, len(el)//Fs, len(el))
+    time2 = np.linspace(0, len(eda9_processed)//Fs, len(eda9_processed))
+
+    plt.subplot(3, 1, 1)
+    plt.plot(time1, el)
+    plt.title('Raw EDA 9')
+    plt.subplot(3, 1, 2)
+    plt.plot(time1, eda9_filtered)
+    plt.title('Filtered EDA 9')
+    plt.subplot(3, 1, 3)
+    plt.plot(time2, eda9_processed)
+    plt.title('Processed EDA 9')
+    fig.tight_layout()
+    plt.show()
+    fig.savefig('../Plot/Signals/EDA/EDA9Metrics1.png', facecolor='white')
+    
+    data = [el, eda9_filtered, eda9_processed]
+    label = ['CVX Raw EDA 9', 'CVX Filtered EDA 9','CVX Processed EDA 9']
+    fig = plt.figure(figsize=(60,40), facecolor="white")
+    plt.rcParams['font.size'] = 18
+    for i in range(len(data)):
+        eda9cvx = np.array(data[i])
+        eda9cvx = stats.zscore(eda9cvx)
+        r, p, t, l, d, e, obj = cvxEDA(eda9cvx, 1/Fs)
+        plt.subplot(3, 1, i+1)
+        plt.plot(time1, r)
+        plt.title(label[i])
+
+    fig.tight_layout()
+    plt.show()
+
+singleEDAMetrics(dataplot[1][8])
 # %%

@@ -1,0 +1,20 @@
+EDA 1 Parameter : 
+ [{'Latency to stimulus onset': 3.57, 'EDR amplitude': 0.001865462438552179, 'EDR rising time (Rise Time)': 27.929, 'EDR response peak (Peak Time)': 31.499, 'Recovery time to 50% amplitude': 'None', 'Recovery time to 63% amplitude': 'None'}, {'Latency to stimulus onset': 35.136, 'EDR amplitude': 0.001508454956264782, 'EDR rising time (Rise Time)': 12.082, 'EDR response peak (Peak Time)': 47.218, 'Recovery time to 50% amplitude': 'None', 'Recovery time to 63% amplitude': 'None'}] 
+
+EDA 2 Parameter : 
+ [{'Latency to stimulus onset': 1.397, 'EDR amplitude': 0.016623755401387996, 'EDR rising time (Rise Time)': -1.397, 'EDR response peak (Peak Time)': 0.0, 'Recovery time to 50% amplitude': 0.646, 'Recovery time to 63% amplitude': 0.792}, {'Latency to stimulus onset': 45.045, 'EDR amplitude': 0.03644716224640021, 'EDR rising time (Rise Time)': -44.787, 'EDR response peak (Peak Time)': 0.258, 'Recovery time to 50% amplitude': 10.257000000000001, 'Recovery time to 63% amplitude': 21.873}] 
+
+EDA 3 Parameter : 
+ [{'Latency to stimulus onset': 6.423, 'EDR amplitude': 0.31362197971296046, 'EDR rising time (Rise Time)': 23.753999999999998, 'EDR response peak (Peak Time)': 30.177, 'Recovery time to 50% amplitude': 'None', 'Recovery time to 63% amplitude': 'None'}, {'Latency to stimulus onset': 31.7, 'EDR amplitude': 2.064716258708745, 'EDR rising time (Rise Time)': 5.629999999999999, 'EDR response peak (Peak Time)': 37.33, 'Recovery time to 50% amplitude': 6.448, 'Recovery time to 63% amplitude': 7.652999999999999}] 
+
+EDA 4 Parameter : 
+ [{'Latency to stimulus onset': 21.565, 'EDR amplitude': 0.08169513268423001, 'EDR rising time (Rise Time)': 3.442999999999998, 'EDR response peak (Peak Time)': 25.008, 'Recovery time to 50% amplitude': 'None', 'Recovery time to 63% amplitude': 'None'}, {'Latency to stimulus onset': 44.219, 'EDR amplitude': 0.265895736831667, 'EDR rising time (Rise Time)': 3.158999999999999, 'EDR response peak (Peak Time)': 47.378, 'Recovery time to 50% amplitude': 10.161000000000001, 'Recovery time to 63% amplitude': 'None'}] 
+
+EDA 5 Parameter : 
+ [{'Latency to stimulus onset': 28.709, 'EDR amplitude': 0.326996613576815, 'EDR rising time (Rise Time)': -28.709, 'EDR response peak (Peak Time)': 0.0, 'Recovery time to 50% amplitude': 12.04, 'Recovery time to 63% amplitude': 15.666}, {'Latency to stimulus onset': 18.53, 'EDR amplitude': 1.2773498854167338, 'EDR rising time (Rise Time)': 8.520999999999997, 'EDR response peak (Peak Time)': 27.051, 'Recovery time to 50% amplitude': 10.172, 'Recovery time to 63% amplitude': 11.331}] 
+
+EDA 6 Parameter : 
+ [{'Latency to stimulus onset': 10.102, 'EDR amplitude': 0.014329059329811322, 'EDR rising time (Rise Time)': 22.897000000000002, 'EDR response peak (Peak Time)': 32.999, 'Recovery time to 50% amplitude': 'None', 'Recovery time to 63% amplitude': 'None'}, {'Latency to stimulus onset': 51.533, 'EDR amplitude': 0.018478229742167118, 'EDR rising time (Rise Time)': 32.465999999999994, 'EDR response peak (Peak Time)': 83.999, 'Recovery time to 50% amplitude': 'None', 'Recovery time to 63% amplitude': 'None'}] 
+
+EDA 7 Parameter : 
+ [{'Latency to stimulus onset': 2.23, 'EDR amplitude': 0.01237730398225928, 'EDR rising time (Rise Time)': 30.868999999999996, 'EDR response peak (Peak Time)': 33.099, 'Recovery time to 50% amplitude': 'None', 'Recovery time to 63% amplitude': 'None'}, {'Latency to stimulus onset': 49.137, 'EDR amplitude': 0.007889977951316351, 'EDR rising time (Rise Time)': 22.007000000000005, 'EDR response peak (Peak Time)': 71.144, 'Recovery time to 50% amplitude': 'None', 'Recovery time to 63% amplitude': 'None'}]

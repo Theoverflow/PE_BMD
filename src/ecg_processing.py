@@ -9,6 +9,8 @@ from pywt import swt, iswt, swt_max_level
 from sklearn.mixture import GaussianMixture
 import biosignalsnotebooks as bsnb
 import math
+import padasip as pa
+
 
 Files = []
 Datasets = []
@@ -49,7 +51,7 @@ def collectData(i):
     return [data_ecg, data_eda, data_rr, data_acc]
 
 dataplot = collectData(-1)
-
+#%%
 #Fonction pour ploter les données, on sauvegarde 7 images rawdatasX.png comprenant 4 graphiques différents
 def plotDatas():
     for j in range(len(Datasets)):
@@ -222,20 +224,34 @@ def ECGMetrics(sig, nb):
 
     grid = gridplot([[f1],[f2],[f3],[f4],[f5]])
     show(grid)
-for i in range(7):
+for i in range(11):
     ECGMetrics(dataplot[0][i], i)
 
 #%%
 # Fonction pour déterminer les pics R
-def ECGParameters():
-    raw_signals = dataplot[0]
-    sr = 1000
-    for el in raw_signals:
-        dictParameters = bsnb.hrv_parameters(np.ravel(el), sr, signal=True)
-        print(dictParameters)
-        print("\n")
 
-ECGParameters()
+
+def ECGParameters(nbecg):
+    fig = plt.figure(figsize=(60,40), facecolor='white')
+    raw_signals = dataplot[0][nbecg]
+    raw_signals = raw_signals/max(raw_signals)
+    accelerometersData = dataplot[3][nbecg]
+    accelerometersData = accelerometersData/max(accelerometersData)
+    timee = np.linspace(0, len(raw_signals)//1000, len(raw_signals))
+    f = pa.filters.FilterLMS(1, mu=0.01, w="zeros")
+    sigECG, errECG, wECG = f.run(raw_signals,accelerometersData)
+    sr = 1000
+    plt.plot(timee[150000:200000], raw_signals[150000:200000], 'b-', label=f'Raw ECG {nbecg}')
+    plt.plot(timee[150000:200000], sigECG[150000:200000], 'r-', label=f'filtered ECG {nbecg}')
+    plt.legend()
+    plt.show()
+    fig.savefig(f'../Plot/Signals/ECG/adaptivefilteringECG{nbecg}.png', facecolor="white")
+    """ dictParameters = bsnb.hrv_parameters(np.ravel(sigECG), sr, signal=True)
+    print(dictParameters)
+    print("\n") """
+
+#for i in range(len(dataplot[0])):
+ECGParameters(3)
 
 #%%
 # Cette fonction est basée sur l'article suivant : Signal Processing Techniques for Removing Noise from ECG Signals
