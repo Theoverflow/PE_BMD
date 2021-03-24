@@ -159,7 +159,7 @@ def ECGMetrics(sig, nb):
     output_file(f"../Plot/Signals/ECG/Metrics{nb}.html")
     
     Fs = 1000
-    timee = linspace(0,len(sig)//Fs, len(sig))
+    timee = np.linspace(0,len(sig)//Fs, len(sig))
     tachogram_data, tachogram_time = bsnb.tachogram(sig, Fs, signal=True, out_seconds=True)
     f1 = bsnb.plot(tachogram_time, tachogram_data, x_axis_label='Time (s)', y_axis_label='Cardiac Cycle (s)', title="Tachogram",  x_range=(0, timee[-1]))
     tachogram_data_NN, tachogram_time_NN = bsnb.remove_ectopy(tachogram_data, tachogram_time)
@@ -224,15 +224,14 @@ def ECGMetrics(sig, nb):
 
     grid = gridplot([[f1],[f2],[f3],[f4],[f5]])
     show(grid)
-for i in range(11):
-    ECGMetrics(dataplot[0][i], i)
+
+ECGMetrics(dataplot[0][6], 7)
 
 #%%
 # Fonction pour déterminer les pics R
 
 
 def ECGParameters(nbecg):
-    fig = plt.figure(figsize=(60,40), facecolor='white')
     raw_signals = dataplot[0][nbecg]
     raw_signals = raw_signals/max(raw_signals)
     accelerometersData = dataplot[3][nbecg]
@@ -241,14 +240,16 @@ def ECGParameters(nbecg):
     f = pa.filters.FilterLMS(1, mu=0.01, w="zeros")
     sigECG, errECG, wECG = f.run(raw_signals,accelerometersData)
     sr = 1000
+    """ fig = plt.figure(figsize=(60,40), facecolor='white')
     plt.plot(timee[150000:200000], raw_signals[150000:200000], 'b-', label=f'Raw ECG {nbecg}')
     plt.plot(timee[150000:200000], sigECG[150000:200000], 'r-', label=f'filtered ECG {nbecg}')
     plt.legend()
     plt.show()
-    fig.savefig(f'../Plot/Signals/ECG/adaptivefilteringECG{nbecg}.png', facecolor="white")
-    """ dictParameters = bsnb.hrv_parameters(np.ravel(sigECG), sr, signal=True)
-    print(dictParameters)
-    print("\n") """
+    fig.savefig(f'../Plot/Signals/ECG/adaptivefilteringECG{nbecg}.png', facecolor="white") """
+    dictParameters = bsnb.hrv_parameters(np.ravel(sigECG), sr, signal=True) 
+    file = open("../ECG_Metrics.txt", 'w') 
+    file.write(f'ECG {nbdata+1} Parameter : \n {dictParameters} \n')
+    file.close()
 
 #for i in range(len(dataplot[0])):
 ECGParameters(3)

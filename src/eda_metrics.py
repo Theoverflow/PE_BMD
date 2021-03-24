@@ -26,7 +26,10 @@ protocolLabel = [[50.5,111.3,121.9,153.4,161.6,197.1,211.6,397.7],\
 [23,34,95,101,162,170,232,237,278,307,382,392,680],\
 [29,38,120,125,185,194,254,258,289,325,387,395],\
 [17,35,96,100,161,168,229,234,277,301,362,380,667]]
-
+extractionLabel=[[70,120,185,208],[110,140,190,220],[120,140,143,180],\
+    [80,120,150,190],[135,200],[145,172,173,225],\
+    [50,120,163,194,195,255],[100,130,150,170,171,200],[100,120,160,200],\
+    [100,250,360,410],[70,110,111,195,196,250,275,350]]
 #%%
 def loadData():
     Files = []
@@ -77,11 +80,14 @@ def plotEDA(datatoplot):
     for el in datatoplot:
         signal_mv = ((el / 2**16) * 3) / 0.12
         tm = np.linspace(0, len(signal_mv)//1000, len(signal_mv))
-        ax = fig.add_subplot(12,1,j+1)
-        ax.set_title(f'Raw EDA Acquisition {j+1}')
+        filteredEDA, processedEDA = singleProcessedEDA(signal_mv)
+        ax = fig.add_subplot(11,1,j+1)
+        ax.set_title(f'Raw + Filtered EDA signals {j+1}')
         ax.set_xlabel('Time (s)')
         ax.set_ylabel(f'EDA response (uS) {j+1}')
         plt.plot(tm, signal_mv)
+        plt.plot(tm, filteredEDA, 'r--')
+        #plt.plot(tm, processedEDA)
         plt.tick_params(axis='both', which='major')
         if j < 3:                
             plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
@@ -135,7 +141,7 @@ def plotEDA(datatoplot):
             plt.axvline(x=protocolLabel[j][10], color="red", linestyle="--", label="count-7")
             plt.axvline(x=protocolLabel[j][11], color="green", linestyle="--", label="description")
         j += 1
-        plt.legend(loc="best")
+    plt.legend(loc="best")
     fig.tight_layout()
     plt.show()
     fig.savefig(f'../Plot/Signals/EDA/EDA.png', facecolor="white")
@@ -363,19 +369,19 @@ def singleProcessedEDA(el):
     signal_int = signal_int * (max(signal_us_low_pass) / max(signal_int))
     return signal_us_low_pass, signal_int
 
-def singleEDAMetrics(el,nbel):
+def singleEDAMetrics(elem,nbel):
     Fs = 1000
     fig = plt.figure(figsize=(60,40), facecolor="white")
     plt.rcParams['font.size'] = 20
     eda9_filtered, eda9_processed = singleProcessedEDA(el)
-    el = el/max(el)
-    time1 = np.linspace(0, len(el)//Fs, len(el))
+    elem = elem/max(elem)
+    time1 = np.linspace(0, len(elem)//Fs, len(elem))
     time2 = np.linspace(0, len(eda9_processed)//Fs, len(eda9_processed))
 
-    plt.subplot(4, 1, 1)
-    plt.plot(time1, el, 'r-', label=f'Raw EDA {nbel}')
-    plt.plot(time1, eda9_filtered, 'g-', label=f'Filtered EDA {nbel}')
-    plt.plot(time2, eda9_processed, 'b-', label=f'Processed EDA {nbel}')
+    plt.subplot(2, 1, 1)
+    plt.plot(time1, elem, 'r-', label=f'Raw EDA {nbel}')
+    plt.plot(time1, eda9_filtered, 'g-', label=f'Filtered EDA {nbel+1}')
+    plt.plot(time2, eda9_processed, 'b-', label=f'Processed EDA {nbel+1}')
     plt.xlabel('Time (s)')
     plt.ylabel('Normalized Amplitude')
     if nbel < 3:                
@@ -433,8 +439,8 @@ def singleEDAMetrics(el,nbel):
     #fig.tight_layout()
     #plt.show()
     #fig.savefig('../Plot/Signals/EDA/EDA9Metrics1.png', facecolor='white')
-    dataMetrics = [el, eda9_filtered, eda9_processed]
-    label = [f'CVX Raw EDA {nbel}', f'CVX Filtered EDA {nbel}',f'CVX Processed EDA {nbel}']
+    dataMetrics = [elem, eda9_filtered, eda9_processed]
+    label = [f'CVX Raw EDA {nbel}', f'CVX Filtered EDA {nbel+1}',f'CVX Processed EDA {nbel+1}']
     colori = ['r', 'g', 'b']
     labeli = 0
     for el in dataMetrics:
@@ -442,19 +448,19 @@ def singleEDAMetrics(el,nbel):
         eda9cvxn = stats.zscore(eda9cvx)
         [r, p, t, l, d, e, obj] = cvxEDA(eda9cvxn, 1/1000)
         if labeli < 2:
-            plt.subplot(4,1,2)
+            plt.subplot(2,1,2)
             plt.plot(time1, r, f'{colori[labeli]}-', label=f'{label[labeli]} phasic')
-            plt.subplot(4,1,3)
+            """ plt.subplot(4,1,3)
             plt.plot(time1, t, f'{colori[labeli]}-', label=f'{label[labeli]} tonic')
             plt.subplot(4,1,4)
-            plt.plot(time1, p, f'{colori[labeli]}-', label=f'{label[labeli]} sparse driver')
+            plt.plot(time1, p, f'{colori[labeli]}-', label=f'{label[labeli]} sparse driver') """
         else :
-            plt.subplot(4,1,2)
+            plt.subplot(2,1,2)
             plt.plot(time1, r[:len(time1)], f'{colori[labeli]}-', label=f'{label[labeli]} phasic')
             plt.xlabel('Time (s)')
             plt.ylabel('Amplitude')
-            plt.legend(loc="upper right")
-            plt.subplot(4,1,3)
+            plt.legend()
+            """ plt.subplot(4,1,3)
             plt.plot(time1, t[:len(time1)], f'{colori[labeli]}-', label=f'{label[labeli]} tonic')
             plt.xlabel('Time (s)')
             plt.ylabel('Amplitude')
@@ -463,11 +469,12 @@ def singleEDAMetrics(el,nbel):
             plt.plot(time1, p[:len(time1)], f'{colori[labeli]}-', label=f'{label[labeli]} sparse driver')
             plt.xlabel('Time (s)')
             plt.ylabel('Amplitude')
-            plt.legend(loc="upper right")
+            plt.legend(loc="upper right") """
         labeli += 1
+        singleEDAParameters(el, nbel)
     fig.tight_layout()
     plt.show()
-    fig.savefig(f'../Plot/signals/EDA/eda_{nbel}_metrics.png', facecolor='white')
+    fig.savefig(f'../Plot/signals/EDA/eda_{nbel+1}_metrics.png', facecolor='white')
 
 #Fonction pour extraire les paramètres de l'EDA :
 """
@@ -526,19 +533,16 @@ def extractEDAParameters(signal_int, sr):
         param_dict["Recovery time to 63% amplitude"] = time_63 - eda_max_time
     return param_dict
 
-def singleEDAParameters(dataprocessed, nbdata):
+import os
+def singleEDAParameters(dataprocessed, nbdata, filename):
     el = dataprocessed
     sr = 1000
     dataparam = []
-    limitList = [protocolLabel[nbdata][2],protocolLabel[nbdata][3],protocolLabel[nbdata][4],protocolLabel[nbdata][6]]
-    if nbdata == 3:
-        limitList = [protocolLabel[nbdata][1],protocolLabel[nbdata][2],protocolLabel[nbdata][3],protocolLabel[nbdata][5]]
-    if nbdata == 6:
-        limitList = [protocolLabel[nbdata][2],protocolLabel[nbdata][3],protocolLabel[nbdata][4],protocolLabel[nbdata][7]]
-    dataparam.append(extractEDAParameters(el[int(sr*limitList[0]):int(sr*limitList[1])],sr))
-    dataparam.append(extractEDAParameters(el[int(sr*limitList[2]):int(sr*limitList[3])],sr))
-    nbdata += 1
-    print(f'EDA {nbdata} Parameter : \n {dataparam} \n')
+    extracti = 0
+    while extracti < len(extractionLabel[nbdata]):
+        dataparam.append(extractEDAParameters(el[int(sr*extractionLabel[nbdata][extracti]):int(sr*extractionLabel[nbdata][extracti+1])],sr))
+        extracti += 2
+    filename.write(f'EDA {nbdata+1} Parameter : \n {dataparam} \n')
 
 def plotSingleCVXEDA(el):
     time1 = np.linspace(0, len(el)//1000, len(el))
@@ -646,27 +650,177 @@ def plotCVxEDA(dataa):
         #plt.show()
         fig.savefig(f'../Plot/Signals/EDA/CVxEDA{nbofpic}labeledprocessed.png', facecolor="white")
         nbofpic += 1
- 
+
+def multipleEDAMetrics():
+    Fs = 1000
+    #fig = plt.figure(figsize=(60,40), facecolor="white")
+    #plt.rcParams['font.size'] = 20
+    file = open("../EDA_Metrics.txt", 'w')
+    colori = ['red', 'green', 'blue' , 'cyan', 'magenta', 'yellow', 'black', 'purple', 'brown', 'pink', 'orange', 'tan']
+    for elemi in range(7,11):
+        fig = plt.figure(figsize=(60,40), facecolor="white")
+        plt.rcParams['font.size'] = 20
+        """ if elemi < 7:
+            elementeda = dataplot[1][elemi][70000:230000]
+        else: """
+        elementeda = dataplot[1][elemi]
+        nbel = elemi
+        eda_filtered, eda9_processed = singleProcessedEDA(elementeda)
+        eda_filtered2, eda_processed2 = singleProcessedEDA(dataplot[1][elemi])
+        eda_filtered = eda_filtered/max(eda_filtered)
+        elementeda = elementeda/max(elementeda)
+        eda9_processed = eda9_processed/max(eda9_processed)
+        """ if elemi < 9:
+            time1 = np.linspace(70, 230, len(elementeda))
+            time2 = np.linspace(70, 230, len(eda9_processed))
+        else: """
+        time1 = np.linspace(0, len(elementeda)//Fs, len(elementeda))
+        time2 = np.linspace(0, len(eda9_processed)//Fs, len(eda9_processed))
+
+        plt.subplot(2, 1, 1)
+        #plt.plot(time1, elementeda, '-', color=f'{colori[elemi]}' label=f'Raw EDA {nbel+1}')
+        #plt.plot(time1, eda_filtered, '-', color=f'{colori[elemi]}',label=f'Filtered EDA {nbel+1}')
+        plt.plot(time2, eda9_processed, '-', color=f'{colori[elemi]}',label=f'Processed EDA {nbel+1}')
+        if nbel < 3:                
+            #plt.axvline(x=protocolLabel[nbel][0], color=f'{colori[elemi]}', linestyle="--")#, label="start")
+            #plt.axvline(x=protocolLabel[nbel][1], color=f'{colori[elemi]}', linestyle="--")#, label="baseline")
+            plt.axvline(x=protocolLabel[nbel][2], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            plt.axvline(x=protocolLabel[nbel][3], color=f'{colori[elemi]}', linestyle=(0, (3, 5, 1, 5)))#, label="count-3")
+            plt.axvline(x=protocolLabel[nbel][4], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            plt.axvline(x=protocolLabel[nbel][5], color=f'{colori[elemi]}', linestyle="-")#, label="count-7")
+            plt.axvline(x=protocolLabel[nbel][6], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            #plt.axvline(x=protocolLabel[nbel][7], color=f'{colori[elemi]}', linestyle="--")#, label="relax")
+        if nbel == 3:
+            #plt.axvline(x=protocolLabel[nbel][0], color=f'{colori[elemi]}', linestyle="--")#, label="start/baseline")
+            plt.axvline(x=protocolLabel[nbel][1], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            plt.axvline(x=protocolLabel[nbel][2], color=f'{colori[elemi]}', linestyle=(0, (3, 5, 1, 5)))#, label="count-3")
+            plt.axvline(x=protocolLabel[nbel][3], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            plt.axvline(x=protocolLabel[nbel][4], color=f'{colori[elemi]}', linestyle="-")#, label="count-7")
+            plt.axvline(x=protocolLabel[nbel][5], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            #plt.axvline(x=protocolLabel[nbel][6], color=f'{colori[elemi]}', linestyle="--")#, label="relax")
+        if nbel==4 or nbel==5  : 
+            #plt.axvline(x=protocolLabel[nbel][0], color=f'{colori[elemi]}', linestyle="--")#, label="start")
+            #plt.axvline(x=protocolLabel[nbel][1], color=f'{colori[elemi]}', linestyle="--")#, label="baseline")
+            plt.axvline(x=protocolLabel[nbel][2], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            plt.axvline(x=protocolLabel[nbel][3], color=f'{colori[elemi]}', linestyle=(0, (3, 5, 1, 5)))#, label="count-3")
+            plt.axvline(x=protocolLabel[nbel][4], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            plt.axvline(x=protocolLabel[nbel][5], color=f'{colori[elemi]}', linestyle="-")#, label="count-7")
+            #plt.axvline(x=protocolLabel[nbel][6], color=f'{colori[elemi]}', linestyle="--")#, label="questionnary")
+            #plt.axvline(x=protocolLabel[nbel][7], color=f'{colori[elemi]}', linestyle="--")#, label="relax")
+        if nbel == 6:
+            #plt.axvline(x=protocolLabel[nbel][0], color=f'{colori[elemi]}', linestyle="--")#, label="start")
+            #plt.axvline(x=protocolLabel[nbel][1], color=f'{colori[elemi]}', linestyle="--")#, label="baseline")
+            plt.axvline(x=protocolLabel[nbel][2], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            plt.axvline(x=protocolLabel[nbel][3], color=f'{colori[elemi]}', linestyle=(0, (3, 5, 1, 5)))#, label="count-3")
+            plt.axvline(x=protocolLabel[nbel][4], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            plt.axvline(x=protocolLabel[nbel][5], color=f'{colori[elemi]}', linestyle="-")#, label="count-7")
+            #plt.axvline(x=protocolLabel[nbel][6], color=f'{colori[elemi]}', linestyle="--")#, label="big breath")
+            #plt.axvline(x=protocolLabel[nbel][7], color=f'{colori[elemi]}', linestyle="--")#, label="questionnary")
+            plt.axvline(x=protocolLabel[nbel][8], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)))#, label="description")
+            #plt.axvline(x=protocolLabel[nbel][9], color=f'{colori[elemi]}', linestyle="--")#, label="fake video")
+            #plt.axvline(x=protocolLabel[nbel][10], color=f'{colori[elemi]}', linestyle="--")#, label="relax")
+        if nbel >= 7:
+            plt.axvline(x=protocolLabel[nbel][0], color=f'{colori[elemi]}', linestyle="--", label="start video")
+            plt.axvline(x=protocolLabel[nbel][1], color=f'{colori[elemi]}', linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[nbel][2], color=f'{colori[elemi]}', linestyle="--", label="baseline")
+            plt.axvline(x=protocolLabel[nbel][3], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)), label="description")
+            plt.axvline(x=protocolLabel[nbel][4], color=f'{colori[elemi]}', linestyle=":", label="count forward")
+            plt.axvline(x=protocolLabel[nbel][5], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)), label="description")
+            plt.axvline(x=protocolLabel[nbel][6], color=f'{colori[elemi]}', linestyle=(0, (3, 5, 1, 5)), label="count-3")
+            plt.axvline(x=protocolLabel[nbel][7], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)), label="description")
+            plt.axvline(x=protocolLabel[nbel][8], color=f'{colori[elemi]}', linestyle=":", label="count forward")
+            plt.axvline(x=protocolLabel[nbel][9], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)), label="description")
+            plt.axvline(x=protocolLabel[nbel][10], color=f'{colori[elemi]}', linestyle="-", label="count-7")
+            plt.axvline(x=protocolLabel[nbel][11], color=f'{colori[elemi]}', linestyle=(0, (3, 1, 1, 1, 1, 1)), label="description")
+        plt.xlabel('Time (s)')
+        plt.ylabel('Normalized Amplitude')
+        plt.title('Processed EDA signals')
+        plt.legend(loc="upper right")
+        #dataMetrics = [elementeda, eda_filtered, eda9_processed]
+        dataMetrics = [eda_filtered]
+        label = [f'CVX Filtered EDA {nbel+1}', f'CVX Filtered EDA {nbel+1}',f'CVX Processed EDA {nbel+1}']
+        labeli = 0
+        for el in dataMetrics:
+            eda9cvx = np.array(el)
+            eda9cvxn = stats.zscore(eda9cvx)
+            [r, p, t, l, d, e, obj] = cvxEDA(eda9cvxn, 1/1000)
+            r = r/max(r)
+            if labeli < 2:
+                plt.subplot(2,1,2)
+                plt.plot(time1, r, '-', color =f'{colori[elemi]}', label=f'{label[labeli]} phasic')
+                plt.xlabel('Time (s)')
+                plt.ylabel('Amplitude')
+                plt.title('Filtered EDA signals phasic component')
+                plt.legend()
+                """ plt.subplot(4,1,3)
+                plt.plot(time1, t, f'{colori[labeli]}-', label=f'{label[labeli]} tonic')
+                plt.subplot(4,1,4)
+                plt.plot(time1, p, f'{colori[labeli]}-', label=f'{label[labeli]} sparse driver') """
+            else :
+                plt.subplot(2,1,2)
+                plt.plot(time1, r[:len(time1)], f'{colori[elemi]}-', label=f'{label[labeli]} phasic')
+                plt.xlabel('Time (s)')
+                plt.ylabel('Amplitude')
+                plt.legend()
+                """ plt.subplot(4,1,3)
+                plt.plot(time1, t[:len(time1)], f'{colori[labeli]}-', label=f'{label[labeli]} tonic')
+                plt.xlabel('Time (s)')
+                plt.ylabel('Amplitude')
+                plt.legend(loc="upper right")
+                plt.subplot(4,1,4)
+                plt.plot(time1, p[:len(time1)], f'{colori[labeli]}-', label=f'{label[labeli]} sparse driver')
+                plt.xlabel('Time (s)')
+                plt.ylabel('Amplitude')
+                plt.legend(loc="upper right") """
+            labeli += 1
+        singleEDAParameters(eda_processed2, nbel, file)
+        fig.tight_layout()
+        plt.show()
+        fig.savefig(f'../Plot/signals/EDA/eda_{nbel+1}_metrics_to9filt.png', facecolor='white')
+    file.close()
+
+
 #%%
 dataplot = loadData()
 dataplot = collectData(dataplot,-1)
+plotEDA(dataplot[1])
 #dataplot = transformDataplot(dataplot, protocolLabel)
 #%%
-plotEDA(dataplot[1])
-#%%
-print(len(dataplot[1][8]))
 dataplot[1][8] = dataplot[1][8][:500000]
 dataplot[1][10] = dataplot[1][10][:500000]
-for ii in range(len(dataplot[1])):
-    singleEDAMetrics(dataplot[1][ii], ii+1)
+#multipleEDAMetrics()
 #filteredEDA9, processedEDA9 = singleProcessedEDA(dataplot[1][8])
 #filteredEDA9 = [filteredEDA9]
 #plotSingleCVXEDA(dataplot[1][9])
 
-
-
-
-
-
+file = open("../EDA_Metrics_phasic.txt", 'w')
+file2 = open("../EDA_Metrics_processed.txt", 'w')
+file3 = open("../EDA_Metrics_normalized_processed.txt", 'w')
+for dataeli in range(len(dataplot[1])):
+    rawdatael = dataplot[1][dataeli][50000:]
+    filteredEDA, processedEDA = singleProcessedEDA(rawdatael)
+    edacvx = np.array(rawdatael)
+    edacvxn = stats.zscore(edacvx)
+    [r, p, t, l, d, e, obj] = cvxEDA(edacvxn, 1/1000)
+    singleEDAParameters(r, dataeli, file)
+    singleEDAParameters(processedEDA, dataeli, file2)
+    singleEDAParameters(edacvxn, dataeli, file3)
+file.close()
+file2.close()
+file3.close()
+"""fig = plt.figure(figsize=(60,40), facecolor="white")
+plt.rcParams['font.size'] = 20
+for dataeli in range(len(dataplot[1])):
+    filteredEDA, processedEDA = singleProcessedEDA(dataplot[1][dataeli])
+    timee = np.linspace(0, len(filteredEDA)//1000, len(filteredEDA))
+    timee2 = np.linspace(0, len(processedEDA)//1000, len(processedEDA))
+    plt.subplot(11, 1, dataeli+1)
+    plt.plot(timee,processedEDA)
+    plt.xlabel('Time (s)')
+    plt.ylabel(f'EDA {dataeli+1} Response')
+    plt.title(f'Processed EDA {dataeli+1} signal')
+    plt.legend(loc="upper right")
+fig.tight_layout()
+fig.savefig(f'../Plot/Signals/EDA/eda_filtered.png', facecolor='white') """
 
 # %%

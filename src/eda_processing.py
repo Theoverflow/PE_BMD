@@ -906,7 +906,7 @@ plotCVxEDA(cvxedaData)
 import scipy
 def plotEDAFFT(nbedafft):
     fig = plt.figure(figsize=(60,40), facecolor='white')
-    sig = dataplot[0][nbedafft]
+    sig = dataplot[1][nbedafft]
     sig = sig/max(sig)
     b, a = signal.butter(2, 35, 'low', fs = 1000.)
     signal_us_low_pass = signal.filtfilt(b, a, np.ravel(sig))
@@ -918,7 +918,7 @@ def plotEDAFFT(nbedafft):
     timee = np.linspace(0, N//Fs, N)
     ffteda2 = scipy.fft.fft(np.ravel(sig))
     amp = 2.0 * np.abs(ffteda2)
-    plt.plot(frq[1:15000], amp[1:15000])
+    plt.plot(frq[10:1500], amp[10:1500])
     plt.xlabel('Frequency (Hz)')
     plt.ylabel(f'EDA {nbedafft} amplitude')
     plt.title(f'EDA {nbedafft} frequency content')
