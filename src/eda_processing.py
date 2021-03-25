@@ -305,7 +305,7 @@ def FiltEDA(N_order = 2):
     sample_frequence = 1000.    #Fréquence d'échantillonnage
     res = 16                    #Résolution de l'ADC
     vcc=3                       #Alimentation 
-    fpLP = [0.35, 0.5, 5, 35]             #Fréquences de coupure
+    fpLP = [35]             #Fréquences de coupure
     fpBP = [[0.016, 5],[0.5, 35],[0.045, 0.25],[0.0167, 0.25]]
     nyquist_frequence = sample_frequence/2.
     
@@ -313,18 +313,21 @@ def FiltEDA(N_order = 2):
 
 
     for flp in fpLP:
-        fig = plt.figure(figsize=(90,60), facecolor="white")
+        fig = plt.figure(figsize=(60,30), facecolor="white")
         b, a = signal.butter(N_order, flp, 'low', fs = sample_frequence)
         w, h = signal.freqs(b, a)
         ifilt = 1
-        plt.subplot(TAILLE+1,1,ifilt)
+        #plt.subplot(TAILLE+1,1,ifilt)
         ifilt += 1
         plt.semilogx(w, 20 * np.log10(abs(h)))
         plt.title(f'Butterworth {N_order} order filter with frequency cutoff at cutoff {flp} Hz')
         plt.xlabel('Frequency [radians / second]')
         plt.ylabel('Amplitude [dB]')
         plt.axvline(flp, color='green')
-        for el in dataplot[1]:
+        plt.grid()
+        plt.legend()
+        fig.savefig(f'../Plot/Signals/EDA/filterededaLP_{N_order}_{flp}.png', facecolor="white")
+        """  for el in dataplot[1]:
             signal_us = ((el / 2**res) * vcc) / 0.12 # On transforme le signal pour lui donner une dimension (formule trouvée sur biosignalplus)
             filteredel = signal.filtfilt(b, a, np.ravel(signal_us)) #Application du premier filtre sur le signal
             time = np.linspace(0, len(el)//1000, len(el))
@@ -400,10 +403,10 @@ def FiltEDA(N_order = 2):
     #plt.show()
         ifilt = 1 
         fig.savefig(f'../Plot/Signals/EDA/filterededaNOTCH_{N_order}_{fn}.png', facecolor="white") 
-        plt.close(fig)
+        plt.close(fig) """
 
-for j in range(1, 5):
-    FiltEDA(j)
+
+FiltEDA()
 
 
 # In[ ]:

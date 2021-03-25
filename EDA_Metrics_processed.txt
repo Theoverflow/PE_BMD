@@ -1,0 +1,2 @@
+EDA 1 Parameter : 
+ [{'Latency to stimulus onset': 8.288, 'EDR amplitude': 0.0025256795966631107, 'EDR rising time (Rise Time)': 34.974000000000004, 'EDR response peak (Peak Time)': 43.262, 'Recovery time to 50% amplitude': 'None', 'Recovery time to 63% amplitude': 'None'}, {'Latency to stimulus onset': 13.049, 'EDR amplitude': 0.0015888492999577841, 'EDR rising time (Rise Time)': -3.5860000000000003, 'EDR response peak (Peak Time)': 9.463, 'Recovery time to 50% amplitude': 1.4050000000000011, 'Recovery time to 63% amplitude': 1.7140000000000004}] 

@@ -74,21 +74,22 @@ def transformDataplot(datatoresize,timeframedata):
 
 #Fonction pour ploter les données, on sauvegarde 7 images rawdatasX.png comprenant 4 graphiques différents
 def plotEDA(datatoplot):
-    plt.rcParams['font.size'] = 18
-    fig = plt.figure(figsize=(60,40), facecolor="white")
+    plt.rcParams['font.size'] = 20
+    fig = plt.figure(figsize=(60,20), facecolor="white")
     j = 0
     for el in datatoplot:
         signal_mv = ((el / 2**16) * 3) / 0.12
         tm = np.linspace(0, len(signal_mv)//1000, len(signal_mv))
         filteredEDA, processedEDA = singleProcessedEDA(signal_mv)
-        ax = fig.add_subplot(11,1,j+1)
-        ax.set_title(f'Raw + Filtered EDA signals {j+1}')
-        ax.set_xlabel('Time (s)')
-        ax.set_ylabel(f'EDA response (uS) {j+1}')
+        #ax = fig.add_subplot(1,1,j+1)
+        #plt.subplot(1,1,1)
         plt.plot(tm, signal_mv)
-        plt.plot(tm, filteredEDA, 'r--')
+        plt.title(f'Raw EDA signals {j+1}')
+        plt.xlabel('Time (s)')
+        plt.ylabel(f'EDA response (uS) {j+1}')
+        #plt.plot(tm, filteredEDA, 'r--')
         #plt.plot(tm, processedEDA)
-        plt.tick_params(axis='both', which='major')
+        #plt.tick_params(axis='both', which='major')
         if j < 3:                
             plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
             plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
@@ -142,7 +143,7 @@ def plotEDA(datatoplot):
             plt.axvline(x=protocolLabel[j][11], color="green", linestyle="--", label="description")
         j += 1
     plt.legend(loc="best")
-    fig.tight_layout()
+    #fig.tight_layout()
     plt.show()
     fig.savefig(f'../Plot/Signals/EDA/EDA.png', facecolor="white")
 
@@ -550,10 +551,17 @@ def plotSingleCVXEDA(el):
     eda9cvxn = stats.zscore(eda9cvx)
     [r, p, t, l, d, e, obj] = cvxEDA(eda9cvxn, 1/1000)
     fig = plt.figure(figsize=(60,40), facecolor="white")
-    plt.rcParams['font.size'] = 18
+    plt.rcParams['font.size'] = 20
+    plt.plot(time1, el)
+    plt.title('CVX Raw EDA 9')
+    plt.plot(time1, p)
+    plt.title('CVX Raw EDA 9')
     plt.plot(time1, r)
     plt.title('CVX Raw EDA 9')
+    plt.plot(time1, t)
+    plt.title('CVX Raw EDA 9')
     plt.show()
+    fig.savefig(f'../Plot/Signals/EDA/singleEDA')
 
 def plotCVxEDA(dataa):
     nbofpic = 1
@@ -565,104 +573,75 @@ def plotCVxEDA(dataa):
         [r, p, t, l, d, e, obj] = cvxEDA(yn, 1/Fs)
         tm = np.linspace(0, len(yn)//Fs, len(yn))
 
-        fig = plt.figure(figsize=(60,40), facecolor="white")
+        fig = plt.figure(figsize=(60,30), facecolor="white")
         #y = y/max(y)
-        plt.subplot(4, 1, 1)
         plt.plot(tm, y)
         plt.title('Raw Normalized EDA signal')
-        plt.xlabel('Time')
+        plt.xlabel('Time (s)')
         plt.ylabel('Normalized EDA value')
-        plt.tick_params(axis='both', which='major')
-        plt.axvline(x=protocolLabel[nbofpic-1][0], color="black", linestyle="--", label="start")
-        plt.axvline(x=protocolLabel[nbofpic-1][1], color="blue", linestyle="--", label="baseline")
-        plt.axvline(x=protocolLabel[nbofpic-1][2], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[nbofpic-1][3], color="red", linestyle="--", label="count-3")
-        plt.axvline(x=protocolLabel[nbofpic-1][4], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[nbofpic-1][5], color="red", linestyle="--", label="count-7")
-        plt.axvline(x=protocolLabel[nbofpic-1][6], color="green", linestyle="--", label="description")
-        if nbofpic != 4:
-            plt.axvline(x=protocolLabel[nbofpic-1][7], color="black", linestyle="--", label="relax")
-            if nbofpic == 7 : 
-                plt.axvline(x=protocolLabel[nbofpic-1][8], color="yellow", linestyle="--", label="questionnary")
-                plt.axvline(x=protocolLabel[nbofpic-1][9], color="purple", linestyle="--", label="video")
-                plt.axvline(x=protocolLabel[nbofpic-1][10], color="brown", linestyle="--", label="video")
-        plt.legend()
-        
-        plt.subplot(4, 1, 2)
         plt.plot(tm, r)
         plt.title('Phasic component')
-        plt.xlabel('Time')
+        plt.xlabel('Time (s)')
         plt.ylabel('Phasic component value')
-        plt.axvline(x=protocolLabel[nbofpic-1][0], color="black", linestyle="--", label="start")
-        plt.axvline(x=protocolLabel[nbofpic-1][1], color="blue", linestyle="--", label="baseline")
-        plt.axvline(x=protocolLabel[nbofpic-1][2], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[nbofpic-1][3], color="red", linestyle="--", label="count-3")
-        plt.axvline(x=protocolLabel[nbofpic-1][4], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[nbofpic-1][5], color="red", linestyle="--", label="count-7")
-        plt.axvline(x=protocolLabel[nbofpic-1][6], color="green", linestyle="--", label="description")
-        if nbofpic != 4:
-            plt.axvline(x=protocolLabel[nbofpic-1][7], color="black", linestyle="--", label="relax")
-            if nbofpic == 7 : 
-                plt.axvline(x=protocolLabel[nbofpic-1][8], color="yellow", linestyle="--", label="questionnary")
-                plt.axvline(x=protocolLabel[nbofpic-1][9], color="purple", linestyle="--", label="video")
-                plt.axvline(x=protocolLabel[nbofpic-1][10], color="brown", linestyle="--", label="video")
-        plt.legend()
-        
-        plt.subplot(4, 1, 3)
         plt.plot(tm, p)
         plt.title('Sparse SMNA driver of phasic component')
-        plt.xlabel('Time')
+        plt.xlabel('Time (s)')
         plt.ylabel('Sparse SMNA value')
-        plt.axvline(x=protocolLabel[nbofpic-1][0], color="black", linestyle="--", label="start")
-        plt.axvline(x=protocolLabel[nbofpic-1][1], color="blue", linestyle="--", label="baseline")
-        plt.axvline(x=protocolLabel[nbofpic-1][2], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[nbofpic-1][3], color="red", linestyle="--", label="count-3")
-        plt.axvline(x=protocolLabel[nbofpic-1][4], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[nbofpic-1][5], color="red", linestyle="--", label="count-7")
-        plt.axvline(x=protocolLabel[nbofpic-1][6], color="green", linestyle="--", label="description")
-        if nbofpic != 4:
-            plt.axvline(x=protocolLabel[nbofpic-1][7], color="black", linestyle="--", label="relax")
-            if nbofpic == 7: 
-                plt.axvline(x=protocolLabel[nbofpic-1][8], color="yellow", linestyle="--", label="questionnary")
-                plt.axvline(x=protocolLabel[nbofpic-1][9], color="purple", linestyle="--", label="video")
-                plt.axvline(x=protocolLabel[nbofpic-1][10], color="brown", linestyle="--", label="video")
-        plt.legend()
-        
-        plt.subplot(4, 1, 4)
         plt.plot(tm, t)
         plt.title('Tonic component')
-        plt.xlabel('Time')
+        plt.xlabel('Time (s)')
         plt.ylabel('Tonic component value')
+        if j < 3:                
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+            plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+            plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+        if j == 3:
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start/baseline")
+            plt.axvline(x=protocolLabel[j][1], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][2], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][3], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][4], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][5], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][6], color="orange", linestyle="--", label="relax")
+        if j==4 or j==5  : 
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+            plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+            plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][6], color="purple", linestyle="--", label="questionnary")
+            plt.axvline(x=protocolLabel[j][7], color="orange", linestyle="--", label="relax")
+        if j == 6:
+            plt.axvline(x=protocolLabel[j][0], color="black", linestyle="--", label="start")
+            plt.axvline(x=protocolLabel[j][1], color="blue", linestyle="--", label="baseline")
+            plt.axvline(x=protocolLabel[j][2], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][3], color="red", linestyle="--", label="count-3")
+            plt.axvline(x=protocolLabel[j][4], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][5], color="red", linestyle="--", label="count-7")
+            plt.axvline(x=protocolLabel[j][6], color="green", linestyle="--", label="big breath")
+            plt.axvline(x=protocolLabel[j][7], color="purple", linestyle="--", label="questionnary")
+            plt.axvline(x=protocolLabel[j][8], color="green", linestyle="--", label="description")
+            plt.axvline(x=protocolLabel[j][9], color="yellow", linestyle="--", label="fake video")
+            plt.axvline(x=protocolLabel[j][10], color="orange", linestyle="--", label="relax")
         plt.legend()
-        plt.axvline(x=protocolLabel[nbofpic-1][0], color="black", linestyle="--", label="start")
-        plt.axvline(x=protocolLabel[nbofpic-1][1], color="blue", linestyle="--", label="baseline")
-        plt.axvline(x=protocolLabel[nbofpic-1][2], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[nbofpic-1][3], color="red", linestyle="--", label="count-3")
-        plt.axvline(x=protocolLabel[nbofpic-1][4], color="green", linestyle="--", label="description")
-        plt.axvline(x=protocolLabel[nbofpic-1][5], color="red", linestyle="--", label="count-7")
-        plt.axvline(x=protocolLabel[nbofpic-1][6], color="green", linestyle="--", label="description")
-        if nbofpic != 4:
-            plt.axvline(x=protocolLabel[nbofpic-1][7], color="black", linestyle="--", label="relax")
-            if nbofpic == 7: 
-                plt.axvline(x=protocolLabel[nbofpic-1][8], color="yellow", linestyle="--", label="questionnary")
-                plt.axvline(x=protocolLabel[nbofpic-1][9], color="purple", linestyle="--", label="video")
-                plt.axvline(x=protocolLabel[nbofpic-1][10], color="brown", linestyle="--", label="video")
         #plt.show()
         fig.savefig(f'../Plot/Signals/EDA/CVxEDA{nbofpic}labeledprocessed.png', facecolor="white")
         nbofpic += 1
+        j += 1
 
 def multipleEDAMetrics():
     Fs = 1000
-    #fig = plt.figure(figsize=(60,40), facecolor="white")
+    fig = plt.figure(figsize=(60,40), facecolor="white")
     #plt.rcParams['font.size'] = 20
     file = open("../EDA_Metrics.txt", 'w')
     colori = ['red', 'green', 'blue' , 'cyan', 'magenta', 'yellow', 'black', 'purple', 'brown', 'pink', 'orange', 'tan']
-    for elemi in range(7,11):
-        fig = plt.figure(figsize=(60,40), facecolor="white")
-        plt.rcParams['font.size'] = 20
-        """ if elemi < 7:
-            elementeda = dataplot[1][elemi][70000:230000]
-        else: """
+    for elemi in range(11):
         elementeda = dataplot[1][elemi]
         nbel = elemi
         eda_filtered, eda9_processed = singleProcessedEDA(elementeda)
@@ -670,12 +649,12 @@ def multipleEDAMetrics():
         eda_filtered = eda_filtered/max(eda_filtered)
         elementeda = elementeda/max(elementeda)
         eda9_processed = eda9_processed/max(eda9_processed)
-        """ if elemi < 9:
+        if elemi < 9:
             time1 = np.linspace(70, 230, len(elementeda))
             time2 = np.linspace(70, 230, len(eda9_processed))
-        else: """
-        time1 = np.linspace(0, len(elementeda)//Fs, len(elementeda))
-        time2 = np.linspace(0, len(eda9_processed)//Fs, len(eda9_processed))
+        else:
+            time1 = np.linspace(0, len(elementeda)//Fs, len(elementeda))
+            time2 = np.linspace(0, len(eda9_processed)//Fs, len(eda9_processed))
 
         plt.subplot(2, 1, 1)
         #plt.plot(time1, elementeda, '-', color=f'{colori[elemi]}' label=f'Raw EDA {nbel+1}')
@@ -744,7 +723,6 @@ def multipleEDAMetrics():
             eda9cvx = np.array(el)
             eda9cvxn = stats.zscore(eda9cvx)
             [r, p, t, l, d, e, obj] = cvxEDA(eda9cvxn, 1/1000)
-            r = r/max(r)
             if labeli < 2:
                 plt.subplot(2,1,2)
                 plt.plot(time1, r, '-', color =f'{colori[elemi]}', label=f'{label[labeli]} phasic')
@@ -773,54 +751,27 @@ def multipleEDAMetrics():
                 plt.ylabel('Amplitude')
                 plt.legend(loc="upper right") """
             labeli += 1
-        singleEDAParameters(eda_processed2, nbel, file)
-        fig.tight_layout()
-        plt.show()
-        fig.savefig(f'../Plot/signals/EDA/eda_{nbel+1}_metrics_to9filt.png', facecolor='white')
+        singleEDAParameters(r, nbel, file)
+    fig.tight_layout()
+    plt.show()
+    fig.savefig(f'../Plot/signals/EDA/eda_{nbel+1}_metrics_to9filt.png', facecolor='white')
     file.close()
 
 
 #%%
 dataplot = loadData()
 dataplot = collectData(dataplot,-1)
-plotEDA(dataplot[1])
 #dataplot = transformDataplot(dataplot, protocolLabel)
 #%%
-dataplot[1][8] = dataplot[1][8][:500000]
-dataplot[1][10] = dataplot[1][10][:500000]
-#multipleEDAMetrics()
-#filteredEDA9, processedEDA9 = singleProcessedEDA(dataplot[1][8])
-#filteredEDA9 = [filteredEDA9]
-#plotSingleCVXEDA(dataplot[1][9])
-
 file = open("../EDA_Metrics_phasic.txt", 'w')
-file2 = open("../EDA_Metrics_processed.txt", 'w')
-file3 = open("../EDA_Metrics_normalized_processed.txt", 'w')
-for dataeli in range(len(dataplot[1])):
-    rawdatael = dataplot[1][dataeli][50000:]
+for dataeli in range(7):
+    rawdatael = dataplot[1][dataeli]
     filteredEDA, processedEDA = singleProcessedEDA(rawdatael)
     edacvx = np.array(rawdatael)
     edacvxn = stats.zscore(edacvx)
-    [r, p, t, l, d, e, obj] = cvxEDA(edacvxn, 1/1000)
-    singleEDAParameters(r, dataeli, file)
-    singleEDAParameters(processedEDA, dataeli, file2)
-    singleEDAParameters(edacvxn, dataeli, file3)
+    #[r, p, t, l, d, e, obj] = cvxEDA(edacvxn, 1/1000)
+    singleEDAParameters(processedEDA, dataeli, file)
 file.close()
-file2.close()
-file3.close()
-"""fig = plt.figure(figsize=(60,40), facecolor="white")
-plt.rcParams['font.size'] = 20
-for dataeli in range(len(dataplot[1])):
-    filteredEDA, processedEDA = singleProcessedEDA(dataplot[1][dataeli])
-    timee = np.linspace(0, len(filteredEDA)//1000, len(filteredEDA))
-    timee2 = np.linspace(0, len(processedEDA)//1000, len(processedEDA))
-    plt.subplot(11, 1, dataeli+1)
-    plt.plot(timee,processedEDA)
-    plt.xlabel('Time (s)')
-    plt.ylabel(f'EDA {dataeli+1} Response')
-    plt.title(f'Processed EDA {dataeli+1} signal')
-    plt.legend(loc="upper right")
-fig.tight_layout()
-fig.savefig(f'../Plot/Signals/EDA/eda_filtered.png', facecolor='white') """
+
 
 # %%
